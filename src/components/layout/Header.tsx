@@ -15,7 +15,7 @@ import {
   Keyboard,
   Settings,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { ActiveView } from "../../types";
 import { T } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ setIsMobileOpen }) => {
     acceptSuggestion,
     dismissSuggestion,
     resetToDefaults,
-  } = useAppStore();
+  } = useSecondBrain();
   const c = useThemeColors();
 
   const [showNotifications, setShowNotifications] = useState(false);

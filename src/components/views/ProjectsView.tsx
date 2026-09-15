@@ -12,7 +12,7 @@ import {
   Archive,
   ArchiveRestore,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Priority, Project, ProjectCategory, Status } from "../../types";
 import { ProjectsSkeleton } from "./ViewSkeletons";
 import { ProjectProgressBar } from "./ProjectProgressBar";
@@ -29,7 +29,7 @@ export const ProjectsView: React.FC = () => {
     isDataLoading,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [archiveFilter, setArchiveFilter] = useState<"active" | "archived" | "all">("active");

@@ -9,7 +9,7 @@ import {
   ExternalLink,
   X,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T } from "../ui/primitives";
 
 interface Node {
@@ -29,7 +29,7 @@ interface Edge {
 }
 
 export const GraphView: React.FC = () => {
-  const { notes, projects, goals, setActiveView, setSelectedNoteId, isRTL, t } = useAppStore();
+  const { notes, projects, goals, setActiveView, setSelectedNoteId, isRTL, t } = useSecondBrain();
 
   const [zoom, setZoom] = useState(1);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);

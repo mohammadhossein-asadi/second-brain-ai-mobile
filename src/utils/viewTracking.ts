@@ -7,7 +7,7 @@ export interface ViewStats {
   lastVisited: number;
 }
 
-const STORAGE_KEY = "app_view_frequencies";
+const STORAGE_KEY = "second_brain_view_frequencies";
 
 const DEFAULT_FREQUENCIES: Record<string, { count: number; lastVisited: number }> = {
   notes: { count: 34, lastVisited: Date.now() - 1000 * 60 * 5 },

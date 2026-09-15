@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { Alert } from "react-native";
 import { Users, Plus, Phone, Mail, Calendar, Trash2, Edit2 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Contact, ContactLevel } from "../../types";
 import { ContactsSkeleton } from "./ViewSkeletons";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
@@ -16,7 +16,7 @@ export const ContactsView: React.FC = () => {
     isDataLoading,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [selectedLevel, setSelectedLevel] = useState<ContactLevel | "all">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);

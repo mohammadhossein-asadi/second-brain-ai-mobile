@@ -3,7 +3,7 @@ import { View, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AppProvider, useAppStore } from "./src/context/AppContext";
+import { SecondBrainProvider, useSecondBrain } from "./src/context/SecondBrainContext";
 import { Sidebar } from "./src/components/layout/Sidebar";
 import { Header } from "./src/components/layout/Header";
 import { Breadcrumbs } from "./src/components/layout/Breadcrumbs";
@@ -36,7 +36,7 @@ import { useThemeColors } from "./src/lib/theme";
 import "./global.css";
 
 function MainLayout() {
-  const { activeView, setActiveView, theme } = useAppStore();
+  const { activeView, setActiveView, theme } = useSecondBrain();
   const c = useThemeColors();
   const insets = useSafeAreaInsets();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -144,8 +144,8 @@ export default function App() {
   }
 
   return (
-    <AppProvider>
+    <SecondBrainProvider>
       <MainLayout />
-    </AppProvider>
+    </SecondBrainProvider>
   );
 }

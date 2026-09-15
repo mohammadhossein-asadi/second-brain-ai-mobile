@@ -9,12 +9,12 @@ import {
   Calendar,
   Info,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { getTodayKey } from "../../data/initialData";
 import { T } from "../ui/primitives";
 
 export const HabitsHeatmapSection: React.FC = () => {
-  const { habits, isRTL } = useAppStore();
+  const { habits, isRTL } = useSecondBrain();
   const [selectedDay, setSelectedDay] = useState<{
     dateKey: string;
     dayLabel: string;

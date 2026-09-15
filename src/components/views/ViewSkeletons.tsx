@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 
 /**
- * Skeleton loading states for major views in Knowledge Base (mobile).
+ * Skeleton loading states for major views in Second Brain (mobile).
  */
 
 const B = ({ h, w, br = 8, style, bg }: { h: number; w: number | `${number}%`; br?: number; style?: any; bg?: string }) => (

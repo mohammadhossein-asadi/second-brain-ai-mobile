@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Pressable } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { Play, Pause, RotateCcw, Timer, CheckCircle2 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
 import { storage } from "../../lib/storage";
@@ -30,13 +30,13 @@ function playCompletionChime() {
 }
 
 export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ isCollapsed = false }) => {
-  const { isRTL, showToast } = useAppStore();
+  const { isRTL, showToast } = useSecondBrain();
   const c = useThemeColors();
   const [mode, setMode] = useState<PomodoroMode>("focus");
   const [timeLeft, setTimeLeft] = useState<number>(MODE_DURATIONS.focus);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [completedSessions, setCompletedSessions] = useState<number>(() => {
-    const stored = storage.getItem("app_pomodoro_sessions");
+    const stored = storage.getItem("sb_pomodoro_sessions");
     return stored ? parseInt(stored, 10) : 0;
   });
 
@@ -73,7 +73,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ isCollapsed = fals
             if (mode === "focus") {
               const updated = completedSessions + 1;
               setCompletedSessions(updated);
-              storage.setItem("app_pomodoro_sessions", updated.toString());
+              storage.setItem("sb_pomodoro_sessions", updated.toString());
 
               showToast(
                 isRTL

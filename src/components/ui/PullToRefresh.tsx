@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { RefreshControl, ScrollViewProps } from "react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { useThemeColors } from "../../lib/theme";
 import { ScrollView } from "./primitives";
 
@@ -49,7 +49,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   style,
   showsVerticalScrollIndicator = true,
 }) => {
-  const { syncData, isSyncing } = useAppStore();
+  const { syncData, isSyncing } = useSecondBrain();
   const [localRefreshing, setLocalRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {

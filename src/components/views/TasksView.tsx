@@ -10,7 +10,7 @@ import {
   Edit2,
   X,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Priority, Status, Task } from "../../types";
 import { TaskReminderBanner } from "./TaskReminderBanner";
 import { TasksSkeleton } from "./ViewSkeletons";
@@ -31,7 +31,7 @@ export const TasksView: React.FC = () => {
     showToast,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [viewMode, setViewMode] = useState<"table" | "board" | "calendar">("table");
   const [filterStatus, setFilterStatus] = useState<string>("all");
