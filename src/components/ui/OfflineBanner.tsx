@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Pressable, View } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { WifiOff, RefreshCw, X, Database } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T, TBold } from "./primitives";
 
 export const OfflineBanner: React.FC = () => {
-  const { isOffline, lastOfflineSyncTimestamp, isRTL, showToast, syncData } = useAppStore();
+  const { isOffline, lastOfflineSyncTimestamp, isRTL, showToast, syncData } = useSecondBrain();
   const [dismissed, setDismissed] = useState(false);
 
   if (!isOffline || dismissed) return null;

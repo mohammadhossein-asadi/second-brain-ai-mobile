@@ -12,7 +12,7 @@ import {
   ChevronUp,
   FileCode,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Note, SuggestedLink } from "../../types";
 import { T, Spinner } from "../ui/primitives";
 
@@ -27,7 +27,7 @@ export const LinkSuggesterPanel: React.FC<LinkSuggesterPanelProps> = ({
   onUpdateNote,
   onInsertTextIntoContent,
 }) => {
-  const { suggestLinksForNote, setActiveView, isRTL, showToast } = useAppStore();
+  const { suggestLinksForNote, setActiveView, isRTL, showToast } = useSecondBrain();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestedLinks, setSuggestedLinks] = useState<SuggestedLink[]>([]);
@@ -158,7 +158,7 @@ export const LinkSuggesterPanel: React.FC<LinkSuggesterPanelProps> = ({
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
               <T style={{ fontSize: 12, fontWeight: "700", color: "#e5e5e5" }}>
-                {isRTL ? "پیوندساز هوشمند پایگاه دانش" : "AI Smart Link Suggester"}
+                {isRTL ? "پیوندساز هوشمند مغز دوم" : "AI Smart Link Suggester"}
               </T>
               <View className="rounded-full bg-blue-500/20 px-1.5 py-0.5">
                 <T style={{ fontSize: 10, color: "#93c5fd" }}>Gemini</T>

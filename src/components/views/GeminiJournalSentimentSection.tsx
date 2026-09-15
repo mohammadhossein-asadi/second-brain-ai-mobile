@@ -10,7 +10,7 @@ import {
   HeartPulse,
   CheckCircle2,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { aiService } from "../../services/ai";
 import { T, Spinner } from "../ui/primitives";
 
@@ -36,7 +36,7 @@ interface SentimentData {
 }
 
 export const GeminiJournalSentimentSection: React.FC = () => {
-  const { notes, isRTL, showToast } = useAppStore();
+  const { notes, isRTL, showToast } = useSecondBrain();
   const [data, setData] = useState<SentimentData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeMetric, setActiveMetric] = useState<"all" | "mood" | "energy" | "focus">("all");

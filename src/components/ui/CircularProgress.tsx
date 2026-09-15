@@ -1,7 +1,7 @@
 import React from "react";
 import { View, ViewStyle } from "react-native";
 import Svg, { Circle } from "react-native-svg";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 
 interface CircularProgressProps {
   progress: number; // 0 to 100
@@ -62,7 +62,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   style,
   children,
 }) => {
-  const { theme } = useAppStore();
+  const { theme } = useSecondBrain();
   const isDark = theme === "dark";
 
   const radius = (size - strokeWidth) / 2;

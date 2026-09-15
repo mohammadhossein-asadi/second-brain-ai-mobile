@@ -1,4 +1,4 @@
-import { useAppStore } from "../context/AppContext";
+import { useSecondBrain } from "../context/SecondBrainContext";
 
 /** Concrete theme token values, mirroring the web app's CSS custom properties. */
 export interface ThemeColors {
@@ -92,7 +92,7 @@ export const darkColors: ThemeColors = {
 };
 
 export function useThemeColors(): ThemeColors {
-  const { theme } = useAppStore();
+  const { theme } = useSecondBrain();
   return theme === "dark" ? darkColors : lightColors;
 }
 

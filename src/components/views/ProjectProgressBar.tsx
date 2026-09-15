@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { CheckCircle2, Circle, AlertCircle, CheckSquare } from "lucide-react-native";
 import { Project, Task } from "../../types";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T } from "../ui/primitives";
 
 interface ProjectProgressBarProps {
@@ -17,7 +17,7 @@ export const ProjectProgressBar: React.FC<ProjectProgressBarProps> = ({
   tasks: propTasks,
   showDetails = true,
 }) => {
-  const { tasks: contextTasks, isRTL, t } = useAppStore();
+  const { tasks: contextTasks, isRTL, t } = useSecondBrain();
   const allTasks = propTasks || contextTasks;
 
   // Find all tasks linked to this project

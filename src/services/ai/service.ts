@@ -249,12 +249,12 @@ async function openAICompatibleStream(
 // AIServiceManager (client-side port of server/aiService.ts)
 // ---------------------------------------------------------------------------
 
-const DEFAULT_SYSTEM_PROMPT = `شما دستیار هوش مصنوعی پیشرفته «پایگاه دانش» (Knowledge Base) هستید.
+const DEFAULT_SYSTEM_PROMPT = `شما دستیار هوش مصنوعی پیشرفته «مغز دوم» (Second Brain AI) هستید.
 نحوه پاسخ‌دهی شما دقیقاً مشابه برترین هوش‌های مصنوعی روز جهان است:
 1. لحن: بسیار حرفه‌ای، دوستانه، ساختاریافته، شفاف و دقیق به زبان فارسی سلیس (یا انگلیسی در صورت درخواست کاربر).
 2. ساختار: از سرتیترهای منظم (## و ###)، بولت‌پوینت‌های خوانا، جداول، یا کدباکس‌های استاندارد مارک‌داون استفاده کنید.
 3. کاربرد: پاسخ‌ها کاربردی و قابل‌اجرا باشند و در مدیریت وظایف، پروژه‌ها، عادات، ایده‌ها و ژورنال روزانه به کاربر کمک کنند.
-اطلاعات فعلی کاربر در پایگاه دانش:
+اطلاعات فعلی کاربر در مغز دوم:
 {CONTEXT}
 
 پاسخ را با بهترین فرمت‌بندی مارک‌داون و استایل مدرن هوش مصنوعی تولید کنید.`;
@@ -290,7 +290,7 @@ export class AIServiceManager {
         defaultModel: "openai/gpt-4o",
         models: ["openai/gpt-4o", "anthropic/claude-3.5-sonnet", "deepseek/deepseek-r1"],
         isConfigured: openRouterKeys.length > 0,
-        description: "Universal model aggregator supporting DeepSeek, GPT, and many more",
+        description: "Universal model aggregator supporting DeepSeek, Claude, and GPT",
       },
       {
         id: "openai",
@@ -573,13 +573,13 @@ export class AIServiceManager {
 
     if (priorityList.length === 0) {
       const offlineMsg =
-        "دستیار هوش مصنوعی پایگاه دانش در حالت محلی فعال است.\n\n" +
+        "دستیار هوش مصنوعی مغز دوم در حالت محلی فعال است.\n\n" +
         "شما می‌توانید تسک‌ها، پروژه‌ها، عادات، اهداف و یادداشت‌های خود را در این پنل هوشمند مدیریت کنید. برای اتصال به مدل‌های ابری با سرعت بالا (Google Gemini، OpenAI، DeepSeek و Mistral)، کلیدهای API مربوطه را در تنظیمات برنامه وارد فرمایید.";
       for (const word of offlineMsg.split(" ")) {
         onChunk(word + " ");
         await new Promise((resolve) => setTimeout(resolve, 20));
       }
-      return { provider: "Knowledge Base Offline", model: "offline-local" };
+      return { provider: "Second Brain Offline", model: "offline-local" };
     }
 
     let lastError: any = null;
@@ -716,7 +716,7 @@ Provide a structured JSON output with:
         const rawText = await geminiGenerate(
           apiKey,
           model,
-          "You are an expert Knowledge Base taxonomy AI. You classify user notes into clear categories such as 'Personal', 'Work', 'Urgent', 'Ideas', 'Study', 'Finance' with localized Persian names, confidence scores, and brief rationales. Output valid JSON only.",
+          "You are an expert Second Brain taxonomy AI. You classify user notes into clear categories such as 'Personal', 'Work', 'Urgent', 'Ideas', 'Study', 'Finance' with localized Persian names, confidence scores, and brief rationales. Output valid JSON only.",
           [{ role: "user", content: prompt }],
           {
             temperature: 0.2,
@@ -948,8 +948,8 @@ ${content || "(No content)"}
           ? `Note regarding ${title}`
           : `یادداشت پیرامون ${title}`
         : isEn
-        ? "Personal note in Knowledge Base vault"
-        : "یادداشت ذخیره شده در سیستم پایگاه دانش");
+        ? "Personal note in Second Brain vault"
+        : "یادداشت ذخیره شده در سیستم مغز دوم");
 
     return {
       summary: fallbackSummary.slice(0, 110),
@@ -1003,7 +1003,7 @@ ${content || "(No content)"}
           tags: c.tags || [],
         }));
 
-        const prompt = `You are an AI Knowledge Base Knowledge Graph linker.
+        const prompt = `You are an AI Second Brain Knowledge Graph linker.
 Carefully scan the following Note title and content, and detect any strong relationships, explicit mentions, or contextual connections to the user's available Projects and Contacts.
 
 Available Projects:
@@ -1033,7 +1033,7 @@ Instructions:
         const rawText = await geminiGenerate(
           apiKey,
           model,
-          "You are a Knowledge Base Knowledge Graph engine. You detect entity mentions and contextual associations between notes, projects, and contacts.",
+          "You are a Second Brain Knowledge Graph engine. You detect entity mentions and contextual associations between notes, projects, and contacts.",
           [{ role: "user", content: prompt }],
           {
             temperature: 0.2,
@@ -1275,7 +1275,7 @@ ${journalContentSummary || "یادداشت‌های روزانه عمومی با
               ? "یادگیری و حل چالش‌های روزمره"
               : "برنامه‌ریزی استراتژیک",
         })),
-        provider: "Knowledge Base Intelligence",
+        provider: "Second Brain Intelligence",
         model: "gemini-3.8-flash (Offline-Engine)",
       };
     }

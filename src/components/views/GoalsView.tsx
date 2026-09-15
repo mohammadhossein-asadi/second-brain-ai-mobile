@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Alert } from "react-native";
-import { Target, Plus, Edit2, Trash2, Calendar, CheckCircle2 } from "lucide-react-native";import { useAppStore } from "../../context/AppContext";
+import { Target, Plus, Edit2, Trash2, Calendar, CheckCircle2 } from "lucide-react-native";import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Goal, GoalTimeframe, Status } from "../../types";
 import { GoalsSkeleton } from "./ViewSkeletons";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
@@ -17,7 +17,7 @@ export const GoalsView: React.FC = () => {
     isDataLoading,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [activeTimeframe, setActiveTimeframe] = useState<GoalTimeframe | "all">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);

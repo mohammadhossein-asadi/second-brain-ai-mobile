@@ -9,7 +9,7 @@ import {
   Globe,
   Bot,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
 import { storage } from "../../lib/storage";
@@ -22,10 +22,10 @@ export const ShortcutsFooter: React.FC = () => {
     setIsQuickCaptureOpen,
     setIsWebClipperOpen,
     setIsAIAssistantOpen,
-  } = useAppStore();
+  } = useSecondBrain();
   const c = useThemeColors();
 
-  const STORAGE_KEY = "app_shortcuts_footer_collapsed";
+  const STORAGE_KEY = "second_brain_shortcuts_footer_collapsed";
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return storage.getItem(STORAGE_KEY) === "true";
   });

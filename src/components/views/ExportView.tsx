@@ -7,7 +7,7 @@ import {
   FileText,
   RotateCcw,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { writeAndShareFile, pickAndReadTextFile, backupFilename } from "../../lib/files";
 import { T, Btn } from "../ui/primitives";
 
@@ -23,7 +23,7 @@ export const ExportView: React.FC = () => {
     resetToDefaults,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ export const ExportView: React.FC = () => {
 
   const handleExportMarkdownNotes = async () => {
     const locale = isRTL ? "fa-IR" : "en-US";
-    let mdContent = `# Knowledge Base Notes Backup\n\nExport Date: ${new Date().toLocaleDateString(locale)}\nTotal Notes: ${notes.length}\n\n---\n\n`;
+    let mdContent = `# Second Brain Notes Backup\n\nExport Date: ${new Date().toLocaleDateString(locale)}\nTotal Notes: ${notes.length}\n\n---\n\n`;
 
     notes.forEach((note, index) => {
       mdContent += `## ${index + 1}. ${note.title}\n`;
@@ -47,7 +47,7 @@ export const ExportView: React.FC = () => {
     try {
       await writeAndShareFile(
         mdContent,
-        `app_notes_${new Date().toISOString().split("T")[0]}.md`,
+        `second_brain_notes_${new Date().toISOString().split("T")[0]}.md`,
         "text/markdown"
       );
       setImportStatus(null);

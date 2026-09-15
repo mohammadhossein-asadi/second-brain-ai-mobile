@@ -9,7 +9,7 @@ import {
   Save,
   RotateCcw,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { storage } from "../../lib/storage";
 import { modalColors } from "../../lib/theme";
 import { ModalShell, T, TBold, Input, Spinner, ScrollView } from "../ui/primitives";
@@ -25,10 +25,10 @@ interface WebClipperDraft {
   savedAt: number;
 }
 
-const DRAFT_KEY = "app_web_clipper_draft";
+const DRAFT_KEY = "second_brain_web_clipper_draft";
 
 export const WebClipperModal: React.FC = () => {
-  const { isWebClipperOpen, setIsWebClipperOpen, addNote, isRTL, t } = useAppStore();
+  const { isWebClipperOpen, setIsWebClipperOpen, addNote, isRTL, t } = useSecondBrain();
 
   const loadDraft = (): WebClipperDraft | null => {
     try {
@@ -107,8 +107,8 @@ export const WebClipperModal: React.FC = () => {
         sampleTags = isRTL ? ["گیت_هاب", "کد", "ابزار"] : ["github", "code", "tools"];
       } else if (url.includes("medium") || url.includes("substack")) {
         sampleTitle = isRTL
-          ? "یادداشت تحلیلی: چگونه یک سیستم پایدار پایگاه دانش بسازیم؟"
-          : "Analytical Essay: How to Architect a Sustainable Knowledge Base";
+          ? "یادداشت تحلیلی: چگونه یک سیستم پایدار مغز دوم بسازیم؟"
+          : "Analytical Essay: How to Architect a Sustainable Second Brain";
         sampleDesc = isRTL
           ? "راهنمای عملی ایجاد چرخه بازخورد و جلوگیری از انباشت اطلاعات بی‌استفاده"
           : "Actionable frameworks for feedback loops and eliminating useless digital hoarding";

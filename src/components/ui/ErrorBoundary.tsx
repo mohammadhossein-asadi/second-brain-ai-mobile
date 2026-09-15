@@ -78,7 +78,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   };
 
   private handleCopyError = async (): Promise<void> => {
-    const errorText = `Knowledge Base Error Report:\n\nMessage: ${this.state.error?.message || "Unknown error"}\n\nStack:\n${this.state.error?.stack || "No stack available"}\n\nComponent Stack:\n${this.state.errorInfo?.componentStack || "No component stack"}`;
+    const errorText = `Second Brain Error Report:\n\nMessage: ${this.state.error?.message || "Unknown error"}\n\nStack:\n${this.state.error?.stack || "No stack available"}\n\nComponent Stack:\n${this.state.errorInfo?.componentStack || "No component stack"}`;
     try {
       await Clipboard.setStringAsync(errorText);
       this.setState({ isCopied: true });
@@ -90,11 +90,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   private handleEmergencyBackup = async (): Promise<void> => {
     try {
-      // Gather all app storage keys
+      // Gather all storage keys related to the second brain
       const backup: Record<string, unknown> = {};
       const keys = mmkv.getAllKeys();
       for (const key of keys) {
-        if (key.startsWith("app_") || key.includes("brain")) {
+        if (key.startsWith("second_brain_") || key.includes("brain")) {
           const raw = mmkv.getString(key) ?? "";
           try {
             backup[key] = JSON.parse(raw);
@@ -105,10 +105,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
       const jsonString = JSON.stringify(backup, null, 2);
       // Persist the emergency snapshot so it survives even if the share sheet is cancelled
-      storage.setItem("app_emergency_backup", jsonString);
+      storage.setItem("second_brain_emergency_backup", jsonString);
       await writeAndShareFile(
         jsonString,
-        backupFilename("app-emergency", "json"),
+        backupFilename("second-brain-emergency", "json"),
         "application/json"
       );
     } catch (e) {

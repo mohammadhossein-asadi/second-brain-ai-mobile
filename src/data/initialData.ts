@@ -192,7 +192,7 @@ export const initialGoals: Goal[] = [
   },
   {
     id: "goal-3",
-    name: "ساماندهی دانش فردی و راه‌اندازی پایگاه دانش دیجیتال",
+    name: "ساماندهی دانش فردی و راه‌اندازی مغز دوم دیجیتال",
     description: "پایان دادن به شلختگی یادداشت‌ها و ایجاد ارتباط هوشمند بین اطلاعات",
     progress: 85,
     timeline: "monthly",
@@ -513,8 +513,8 @@ export const initialResources: Resource[] = [
 export const initialNotes: Note[] = [
   {
     id: "note-1",
-    title: "مفهوم و ساختار پایگاه دانش شخصی (CODE Framework)",
-    content: `# ساختار سیستم پایگاه دانش (Building a Knowledge Base)
+    title: "مفهوم و ساختار مغز دوم شخصی (CODE Framework)",
+    content: `# ساختار سیستم مغز دوم (Building a Second Brain)
 
 متدولوژی CODE از تیاگو فورته شامل چهار گام اساسی است:
 
@@ -794,7 +794,7 @@ export const initialSuggestions: ProactiveSuggestion[] = [
   {
     id: "sug-2",
     type: "link",
-    title: "ارتباط کشف‌شده بین «پایگاه دانش» و «کتاب عادت‌های اتمی»",
+    title: "ارتباط کشف‌شده بین «مغز دوم» و «کتاب عادت‌های اتمی»",
     description: "بخش سیستم‌های ردیابی عادت در هر دو یادداشت هم‌پوشانی دارند. مایلید لینک دوطرفه ایجاد شود؟",
     confidence: 0.88,
     actionText: "ایجاد پیوند دوطرفه",

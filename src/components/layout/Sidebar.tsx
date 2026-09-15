@@ -21,7 +21,7 @@ import {
   Brain,
   X,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { ActiveView } from "../../types";
 import { T } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setIsCommandPaletteOpen,
     setIsQuickCaptureOpen,
     setIsAIAssistantOpen,
-  } = useAppStore();
+  } = useSecondBrain();
   const c = useThemeColors();
 
   const pendingTasksCount = tasks.filter((t) => !t.isCompleted).length;
@@ -141,7 +141,7 @@ function AnimatedSidebarBody(props: SidebarBodyProps) {
   } = props;
 
   const { isRTL, t, setActiveView, setIsQuickCaptureOpen, setIsCommandPaletteOpen } =
-    useAppStore();
+    useSecondBrain();
   const c = useThemeColors();
 
   return (

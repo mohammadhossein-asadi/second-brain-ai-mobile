@@ -8,7 +8,7 @@ import {
   AlertCircle,
   X,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { useThemeColors } from "../../lib/theme";
 import { T, TBold } from "./primitives";
 import { Toast, ToastType } from "../../types";
@@ -130,7 +130,7 @@ const ToastItem: React.FC<{ toast: Toast; isDark: boolean; onDismiss: (id: strin
 };
 
 export const ToastContainer: React.FC = () => {
-  const { toasts, dismissToast, isRTL, theme } = useAppStore();
+  const { toasts, dismissToast, isRTL, theme } = useSecondBrain();
   const insets = useSafeAreaInsets();
 
   // Deduplicate toasts by ID and message content to guarantee single-rendering

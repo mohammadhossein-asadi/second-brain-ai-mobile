@@ -14,7 +14,7 @@ import {
   Save,
   RotateCcw,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Priority } from "../../types";
 import { storage } from "../../lib/storage";
 import { modalColors } from "../../lib/theme";
@@ -32,9 +32,9 @@ export const QuickCaptureModal: React.FC = () => {
     goals,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
-  const DRAFT_KEY = "app_quick_capture_draft";
+  const DRAFT_KEY = "second_brain_quick_capture_draft";
   const [autoSavedTime, setAutoSavedTime] = useState<string | null>(null);
 
   const loadDraft = (): any | null => {

@@ -11,7 +11,7 @@ import {
   Zap,
   Leaf,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { getTodayKey } from "../../data/initialData";
 import { storage } from "../../lib/storage";
 import { T, Input } from "../ui/primitives";
@@ -22,11 +22,11 @@ interface DailyJournalTileProps {
 }
 
 export const DailyJournalTile: React.FC<DailyJournalTileProps> = ({ isRTL }) => {
-  const { addNote, showToast, notes, setActiveView, setSelectedNoteId } = useAppStore();
+  const { addNote, showToast, notes, setActiveView, setSelectedNoteId } = useSecondBrain();
   const c = useThemeColors();
   const todayKey = getTodayKey();
 
-  const DRAFT_KEY = `app_daily_journal_${todayKey}`;
+  const DRAFT_KEY = `second_brain_daily_journal_${todayKey}`;
 
   // Mood options
   const moods = [
@@ -104,7 +104,7 @@ export const DailyJournalTile: React.FC<DailyJournalTileProps> = ({ isRTL }) => 
     const currentMoodObj = moods.find((m) => m.id === selectedMood);
     const moodLabel = isRTL ? currentMoodObj?.labelFa : currentMoodObj?.labelEn;
 
-    const formattedContent = `## ${isRTL ? "Ø¨Ø§Ø²ØªØ§Ø¨ Ø±ÙˆØ²Ø§Ù†Ù‡" : "Daily Reflection"} - ${todayKey}\n\n**${isRTL ? "Ø­Ø§Ù„Øª Ø°Ù‡Ù†ÛŒ Ùˆ Ø§Ù†Ø±Ú˜ÛŒ" : "State of Mind"}:** ${moodLabel}\n\n${reflectionText}\n\n---\n*${isRTL ? "Ø«Ø¨Øªâ€ŒØ´Ø¯Ù‡ Ø§Ø² Ø·Ø±ÛŒÙ‚ Ø¯Ø§Ø´Ø¨ÙˆØ±Ø¯ Ù…ØºØ² Ø¯ÙˆÙ…" : "Captured via Knowledge Base Dashboard"}*`;
+    const formattedContent = `## ${isRTL ? "Ø¨Ø§Ø²ØªØ§Ø¨ Ø±ÙˆØ²Ø§Ù†Ù‡" : "Daily Reflection"} - ${todayKey}\n\n**${isRTL ? "Ø­Ø§Ù„Øª Ø°Ù‡Ù†ÛŒ Ùˆ Ø§Ù†Ø±Ú˜ÛŒ" : "State of Mind"}:** ${moodLabel}\n\n${reflectionText}\n\n---\n*${isRTL ? "Ø«Ø¨Øªâ€ŒØ´Ø¯Ù‡ Ø§Ø² Ø·Ø±ÛŒÙ‚ Ø¯Ø§Ø´Ø¨ÙˆØ±Ø¯ Ù…ØºØ² Ø¯ÙˆÙ…" : "Captured via Second Brain Dashboard"}*`;
 
     addNote({
       title: isRTL ? `Ú˜ÙˆØ±Ù†Ø§Ù„ Ø±ÙˆØ²Ø§Ù†Ù‡ - ${todayKey}` : `Daily Journal - ${todayKey}`,

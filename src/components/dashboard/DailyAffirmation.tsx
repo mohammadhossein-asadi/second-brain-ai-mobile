@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Sparkles, Quote, Copy, Check, RefreshCw } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { useThemeColors } from "../../lib/theme";
 import { T, TBold } from "../ui/primitives";
 
@@ -57,7 +57,7 @@ const AFFIRMATION_COLLECTION: AffirmationItem[] = [
       fa: "ایده‌ها در انزوا شکوفا نمی‌شوند؛ پیوند دادن مفاهیم به ظاهر نامربوط است که جرقه نوآوری را می‌زند.",
       en: "Creativity is just connecting things. When you connect distant concepts, innovation is born.",
     },
-    author: { fa: "پایگاه دانش و شبکه دانش", en: "Knowledge Base Philosophy" },
+    author: { fa: "مغز دوم و شبکه دانش", en: "Second Brain Philosophy" },
   },
   {
     id: "aff-6",
@@ -71,7 +71,7 @@ const AFFIRMATION_COLLECTION: AffirmationItem[] = [
 ];
 
 export const DailyAffirmation: React.FC<{ className?: string }> = ({ className = "" }) => {
-  const { isRTL, showToast } = useAppStore();
+  const { isRTL, showToast } = useSecondBrain();
   const c = useThemeColors();
   const [currentIndex, setCurrentIndex] = useState<number>(() => {
     const dayOfYear = Math.floor(

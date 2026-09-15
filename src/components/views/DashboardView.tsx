@@ -16,7 +16,7 @@ import {
   ArrowUpRight,
   Bot,
   RefreshCw,
-} from "lucide-react-native";import { useAppStore } from "../../context/AppContext";
+} from "lucide-react-native";import { useSecondBrain } from "../../context/SecondBrainContext";
 import { getTodayKey } from "../../data/initialData";
 import { DashboardSkeleton } from "./DashboardSkeleton";
 import { DashboardCharts, MiniCognitiveLoadChart } from "./DashboardCharts";
@@ -47,7 +47,7 @@ export const DashboardView: React.FC = () => {
     setSelectedNoteId,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
   const c = useThemeColors();
 
   if (isDataLoading) {

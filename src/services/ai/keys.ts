@@ -5,7 +5,7 @@ import { storage } from "../../lib/storage";
  * AI API keys: bundled at build time from .env (via app.config.js `extra.ai`)
  * with runtime overrides stored in MMKV (in-app Provider Settings screen).
  */
-const OVERRIDES_KEY = "app_v1_aiKeys";
+const OVERRIDES_KEY = "second_brain_v1_aiKeys";
 
 type KeyMap = Record<string, string>;
 

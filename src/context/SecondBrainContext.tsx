@@ -49,7 +49,7 @@ import {
   getTodayKey,
 } from "../data/initialData";
 
-interface AppContextType {
+interface SecondBrainContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
@@ -209,9 +209,9 @@ interface AppContextType {
   lastOfflineSyncTimestamp: string;
 }
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const SecondBrainContext = createContext<SecondBrainContextType | undefined>(undefined);
 
-const STORAGE_PREFIX = "app_v1_";
+const STORAGE_PREFIX = "second_brain_v1_";
 
 function loadStorage<T>(key: string, fallback: T): T {
   try {
@@ -233,7 +233,7 @@ function saveStorage<T>(key: string, value: T) {
   }
 }
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     return loadStorage<Language>("language", "fa");
   });
@@ -389,7 +389,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     {
       id: "msg-1",
       role: "assistant",
-      content: "سلام! من دستیار هوشمند پایگاه دانش شما هستم. به تمامی یادداشت‌ها، پروژه‌ها، تسک‌ها و اهداف شما متصل‌ام. چگونه می‌توانم امروز به شما کمک کنم؟",
+      content: "سلام! من دستیار هوشمند مغز دوم شما هستم. به تمامی یادداشت‌ها، پروژه‌ها، تسک‌ها و اهداف شما متصل‌ام. چگونه می‌توانم امروز به شما کمک کنم؟",
       timestamp: "اکنون",
     },
   ]));
@@ -961,7 +961,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       suggestedCategories: categories,
       tags: isWork ? ["کاری"] : isPersonal ? ["شخصی"] : ["یادداشت"],
       urgencyLevel: isUrgent ? "urgent" : "medium",
-      provider: "Knowledge Base Heuristics",
+      provider: "Second Brain Heuristics",
     };
   };
 
@@ -1073,7 +1073,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return {
       links: links.slice(0, 5),
-      provider: "Knowledge Base Heuristics",
+      provider: "Second Brain Heuristics",
     };
   };
 
@@ -1099,8 +1099,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ? `یادداشت پیرامون ${title}`
           : `Note regarding ${title}`
         : isRTL
-        ? "یادداشت ثبت شده در پایگاه دانش"
-        : "Knowledge Base note")
+        ? "یادداشت ثبت شده در مغز دوم"
+        : "Second Brain note")
     );
   };
 
@@ -1144,8 +1144,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       );
       showToast(
         isRTL
-          ? "همگام‌سازی پایگاه دانش با موفقیت انجام شد."
-          : "Knowledge Base synchronized successfully.",
+          ? "همگام‌سازی مغز دوم با موفقیت انجام شد."
+          : "Second Brain synchronized successfully.",
         "success"
       );
     } catch (e) {
@@ -1315,7 +1315,7 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
       );
     } catch (err) {
       // Intelligent local contextual response fallback
-      let fallbackReply = `پاسخ محلی پایگاه دانش به: «${content}»\n\n`;
+      let fallbackReply = `پاسخ محلی مغز دوم به: «${content}»\n\n`;
       const lower = content.toLowerCase();
       if (lower.includes("تسک") || lower.includes("کار") || lower.includes("امروز")) {
         const pending = tasks.filter((t) => !t.isCompleted);
@@ -1325,13 +1325,13 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
         fallbackReply += `لیست پروژه‌های شما:\n` +
           projects.map((p) => `• ${p.name} — پیشرفت: ${p.progress}%`).join("\n");
       } else if (lower.includes("هدف") || lower.includes("اهداف")) {
-        fallbackReply += `اهداف شما در پایگاه دانش:\n` +
+        fallbackReply += `اهداف شما در مغز دوم:\n` +
           goals.map((g) => `• ${g.name} (پیشرفت ${g.progress}%)`).join("\n");
       } else if (lower.includes("عادت")) {
         fallbackReply += `عادات روزانه شما با بیشترین توالی:\n` +
           habits.map((h) => `• ${h.name} 🔥 توالی ${h.streak} روز`).join("\n");
       } else {
-        fallbackReply += `یادداشت‌ها و پایگاه دانش شما بررسی شد. شما می‌توانید به راحتی از بخش‌های ناوبری به پروژه‌ها، تسک‌ها و نمودار دانش دسترسی داشته باشید.`;
+        fallbackReply += `یادداشت‌ها و مغز دوم شما بررسی شد. شما می‌توانید به راحتی از بخش‌های ناوبری به پروژه‌ها، تسک‌ها و نمودار دانش دسترسی داشته باشید.`;
       }
 
       setChatMessages((prev) =>
@@ -1340,7 +1340,7 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
             ? {
                 ...m,
                 content: fallbackReply,
-                provider: "Knowledge Base Local",
+                provider: "Second Brain Local",
                 model: "local-rules",
                 isStreaming: false,
               }
@@ -1386,7 +1386,7 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
   const downloadBackupJSON = (customFilename?: string) => {
     try {
       const jsonString = exportFullBackupJSON();
-      const filename = customFilename || backupFilename("app-backup", "json");
+      const filename = customFilename || backupFilename("second-brain-backup", "json");
       writeAndShareFile(jsonString, filename, "application/json")
         .then(() => {
           showToast(
@@ -1448,7 +1448,7 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
   };
 
   return (
-    <AppContext.Provider
+    <SecondBrainContext.Provider
       value={{
         language,
         setLanguage,
@@ -1568,14 +1568,14 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
       }}
     >
       {children}
-    </AppContext.Provider>
+    </SecondBrainContext.Provider>
   );
 };
 
-export const useAppStore = () => {
-  const context = useContext(AppContext);
+export const useSecondBrain = () => {
+  const context = useContext(SecondBrainContext);
   if (!context) {
-    throw new Error("useAppStore must be used within a AppProvider");
+    throw new Error("useSecondBrain must be used within a SecondBrainProvider");
   }
   return context;
 };

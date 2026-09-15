@@ -34,7 +34,7 @@ import {
   HardDriveDownload,
   Bot,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { ActiveView } from "../../types";
 import { ModalShell, T, TBold, Input, Btn } from "../ui/primitives";
 import {
@@ -69,7 +69,7 @@ const P = {
   deepBlueBg: "rgba(23,37,84,0.25)",
 };
 
-const RECENT_SEARCHES_KEY = "app_recent_searches";
+const RECENT_SEARCHES_KEY = "second_brain_recent_searches";
 
 // Component that splits text by query and visually highlights matching terms
 const HighlightMatch: React.FC<{ text: string; query: string; style?: TextStyle }> = ({
@@ -186,7 +186,7 @@ export const CommandPalette: React.FC = () => {
     showToast,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [query, setQuery] = useState("");
 
@@ -418,7 +418,7 @@ export const CommandPalette: React.FC = () => {
       },
       {
         id: "act-sync-data",
-        title: isRTL ? "همگام‌سازی فوری پایگاه دانش" : "Sync Knowledge Vault",
+        title: isRTL ? "همگام‌سازی فوری مغز دوم" : "Sync Knowledge Vault",
         subtitle: isRTL ? "بروزرسانی تغییرات با فضای ذخیره‌سازی ابری" : "Persist and synchronize data changes",
         icon: RefreshCw,
         badge: "Sync",
@@ -426,7 +426,7 @@ export const CommandPalette: React.FC = () => {
         action: async () => {
           setIsCommandPaletteOpen(false);
           await syncData();
-          showToast(isRTL ? "پایگاه دانش با موفقیت همگام شد" : "Vault synchronized successfully", "success");
+          showToast(isRTL ? "مغز دوم با موفقیت همگام شد" : "Vault synchronized successfully", "success");
         },
       },
       {

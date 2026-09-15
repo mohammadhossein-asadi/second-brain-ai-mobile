@@ -10,7 +10,7 @@ import {
   Sparkles,
   ExternalLink,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T, Input, ModalShell } from "../ui/primitives";
 
 interface ShortcutItem {
@@ -37,7 +37,7 @@ export const KeyboardShortcutsModal: React.FC = () => {
     toggleLanguage,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -49,7 +49,7 @@ export const KeyboardShortcutsModal: React.FC = () => {
       titleFa: "پالت دستورات و جستجوی سراسری",
       titleEn: "Command Palette & Universal Search",
       descriptionFa: "جستجوی آنی در یادداشت‌ها، وظایف، پروژه‌ها و اجرای دستورات",
-      descriptionEn: "Instant search across all knowledge base entities and actions",
+      descriptionEn: "Instant search across all second brain entities and actions",
       category: "navigation",
       action: () => {
         setIsShortcutsModalOpen(false);
@@ -96,7 +96,7 @@ export const KeyboardShortcutsModal: React.FC = () => {
       keys: ["A"],
       titleFa: "دستیار هوشمند و کوپایلوت",
       titleEn: "AI Copilot Assistant",
-      descriptionFa: "پرسش، خلاصه‌سازی و تحلیل ارتباطات پایگاه دانش با هوش مصنوعی",
+      descriptionFa: "پرسش، خلاصه‌سازی و تحلیل ارتباطات مغز دوم با هوش مصنوعی",
       descriptionEn: "Query, summarize, and connect knowledge using AI",
       category: "actions",
       action: () => {
@@ -148,7 +148,7 @@ export const KeyboardShortcutsModal: React.FC = () => {
       keys: ["G", "N"],
       titleFa: "رفتن به یادداشت‌ها",
       titleEn: "Go to Notes & Knowledge",
-      descriptionFa: "مرور پایگاه دانش Zettelkasten و یادداشت‌های اتمیک",
+      descriptionFa: "مرور مغز دوم Zettelkasten و یادداشت‌های اتمیک",
       descriptionEn: "Explore atomic knowledge notes, links, and tags",
       category: "views",
       action: () => {

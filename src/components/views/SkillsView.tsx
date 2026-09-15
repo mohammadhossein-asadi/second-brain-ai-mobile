@@ -3,12 +3,12 @@ import { View, Pressable, ScrollView } from "react-native";
 import { Alert } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Award, Plus, Star, Trash2 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Skill, SkillType } from "../../types";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
 
 export const SkillsView: React.FC = () => {
-  const { skills, addSkill, updateSkill, deleteSkill, isRTL, t } = useAppStore();
+  const { skills, addSkill, updateSkill, deleteSkill, isRTL, t } = useSecondBrain();
 
   const [activeTab, setActiveTab] = useState<SkillType | "all">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
