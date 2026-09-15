@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base Surfaces */
+    --bg-main: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f1f5f9;
+    --bg-subtle: #f8fafc;
+    --bg-hover: #e2e8f0;
+
+    /* Card & Bento */
+    --card-surface: #ffffff;
+    --card-hover-bg: #f8fafc;
+
+    /* Borders */
+    --border-color: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    --border-hover: #cbd5e1;
+
+    /* Typography */
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+
+    /* Navbar / Header */
+    --navbar-bg: rgba(255, 255, 255, 0.95);
+    --navbar-border: #e2e8f0;
+    --navbar-btn-bg: #ffffff;
+    --navbar-btn-border: #e2e8f0;
+    --navbar-btn-text: #334155;
+    --navbar-btn-hover-bg: #f8fafc;
+    --navbar-btn-hover-border: #cbd5e1;
+    --navbar-btn-hover-text: #0f172a;
+    --navbar-dropdown-bg: #ffffff;
+    --navbar-dropdown-border: #e2e8f0;
+
+    /* Sidebar */
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e2e8f0;
+    --sidebar-item-hover-bg: #f1f5f9;
+    --sidebar-item-active-bg: #f1f5f9;
+    --sidebar-item-active-border: #e2e8f0;
+    --sidebar-item-text: #475569;
+    --sidebar-item-active-text: #0f172a;
+
+    /* Scrollbar */
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
+
+    /* Accents - Attractive Vibrant Blue */
+    --accent-blue: #2563eb;
+    --accent-blue-subtle: rgba(37, 99, 235, 0.1);
+    --accent-emerald: #2563eb;
+    --accent-emerald-subtle: rgba(37, 99, 235, 0.1);
+  }
+
+  .dark {
+    /* Base Surfaces */
+    --bg-main: #0a0e17;
+    --bg-surface: #111827;
+    --bg-elevated: #1a2234;
+    --bg-subtle: #131b2e;
+    --bg-hover: #1f293d;
+
+    /* Card & Bento */
+    --card-surface: rgba(17, 24, 39, 0.9);
+    --card-hover-bg: rgba(26, 34, 52, 0.95);
+
+    /* Borders */
+    --border-color: #1f293d;
+    --border-subtle: #172033;
+    --border-hover: #334155;
+
+    /* Typography */
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-subtle: #64748b;
+
+    /* Navbar / Header */
+    --navbar-bg: rgba(10, 14, 23, 0.92);
+    --navbar-border: #1f293d;
+    --navbar-btn-bg: #151d2e;
+    --navbar-btn-border: #1f293d;
+    --navbar-btn-text: #cbd5e1;
+    --navbar-btn-hover-bg: #1f293d;
+    --navbar-btn-hover-border: #334155;
+    --navbar-btn-hover-text: #ffffff;
+    --navbar-dropdown-bg: #111827;
+    --navbar-dropdown-border: #1f293d;
+
+    /* Sidebar */
+    --sidebar-bg: #0d121d;
+    --sidebar-border: #1f293d;
+    --sidebar-item-hover-bg: rgba(255, 255, 255, 0.05);
+    --sidebar-item-active-bg: #182030;
+    --sidebar-item-active-border: #232e44;
+    --sidebar-item-text: #94a3b8;
+    --sidebar-item-active-text: #ffffff;
+
+    /* Scrollbar */
+    --scrollbar-thumb: #1f293d;
+    --scrollbar-thumb-hover: #334155;
+
+    /* Accents - Attractive Vibrant Blue */
+    --accent-blue: #3b82f6;
+    --accent-blue-subtle: rgba(59, 130, 246, 0.15);
+    --accent-emerald: #3b82f6;
+    --accent-emerald-subtle: rgba(59, 130, 246, 0.15);
+  }
+}
+
+@layer components {
+  .bento-card {
+    background-color: var(--card-surface);
+    border-color: var(--border-color);
+    border-radius: 1.5rem;
+    color: var(--text-primary);
+  }
+
+  .sidebar-surface {
+    background-color: var(--sidebar-bg);
+    border-color: var(--sidebar-border);
+  }
+
+  .navbar-surface {
+    background-color: var(--navbar-bg);
+    border-color: var(--navbar-border);
+  }
+}
+
+/* LTR overrides for code, urls and english tokens */
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
