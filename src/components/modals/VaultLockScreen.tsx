@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { View, Pressable, Modal as RNModal, Animated } from "react-native";
 import { Lock, KeyRound, Delete, AlertCircle, Clock, CheckCircle2 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T, TBold, Input } from "../ui/primitives";
 
 type KeypadKey = { key: string; kind: "digit" | "del" | "ok" };
@@ -37,7 +37,7 @@ export const VaultLockScreen: React.FC = () => {
     setVaultPin,
     autoLockMinutes,
     isRTL,
-  } = useAppStore();
+  } = useSecondBrain();
   const [pinInput, setPinInput] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState(false);

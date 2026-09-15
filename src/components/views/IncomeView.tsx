@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { Alert } from "react-native";
-import { DollarSign, Plus, Trash2, TrendingUp, ArrowUpRight } from "lucide-react-native";import { useAppStore } from "../../context/AppContext";
+import { DollarSign, Plus, Trash2, TrendingUp, ArrowUpRight } from "lucide-react-native";import { useSecondBrain } from "../../context/SecondBrainContext";
 import { IncomeStream, IncomeType } from "../../types";
 import { IncomeSkeleton } from "./ViewSkeletons";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
 
 export const IncomeView: React.FC = () => {
-  const { incomeStreams, addIncomeStream, deleteIncomeStream, isDataLoading, isRTL, t } = useAppStore();
+  const { incomeStreams, addIncomeStream, deleteIncomeStream, isDataLoading, isRTL, t } = useSecondBrain();
 
   const [activeTab, setActiveTab] = useState<IncomeType | "all">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);

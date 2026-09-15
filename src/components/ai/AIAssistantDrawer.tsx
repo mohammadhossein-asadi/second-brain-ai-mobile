@@ -11,7 +11,7 @@ import {
   ChevronDown,
   ArrowDown,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { AIChatMessageItem } from "./AIChatMessageItem";
 import { T, Input, Select, Spinner } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
@@ -31,7 +31,7 @@ export const AIAssistantDrawer: React.FC = () => {
     isRTL,
     t,
     showToast,
-  } = useAppStore();
+  } = useSecondBrain();
   const c = useThemeColors();
 
   const [input, setInput] = useState("");

@@ -14,7 +14,7 @@ import {
   Star,
   CheckCircle2,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { SelfAwareness, SelfAwarenessType } from "../../types";
 import { GeminiJournalSentimentSection } from "./GeminiJournalSentimentSection";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
@@ -27,7 +27,7 @@ export const SelfAwarenessView: React.FC = () => {
     toggleSelfAwarenessCompleted,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [activeType, setActiveType] = useState<SelfAwarenessType | "all">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);

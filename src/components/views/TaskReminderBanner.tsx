@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react-native";
 import { Task } from "../../types";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T } from "../ui/primitives";
 
 interface TaskReminderBannerProps {
@@ -23,7 +23,7 @@ export const TaskReminderBanner: React.FC<TaskReminderBannerProps> = ({
   tasks,
   onSetReminder,
 }) => {
-  const { isRTL, showToast } = useAppStore();
+  const { isRTL, showToast } = useSecondBrain();
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 

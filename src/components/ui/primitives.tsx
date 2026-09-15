@@ -13,7 +13,7 @@ import {
   TextInputProps,
   TextProps,
 } from "react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { useThemeColors, ThemeColors } from "../../lib/theme";
 
 // ---------------------------------------------------------------------------
@@ -21,7 +21,7 @@ import { useThemeColors, ThemeColors } from "../../lib/theme";
 // ---------------------------------------------------------------------------
 
 export function T({ style, ...props }: TextProps) {
-  const { isRTL, language } = useAppStore();
+  const { isRTL, language } = useSecondBrain();
   const c = useThemeColors();
   return (
     <RNText
@@ -39,7 +39,7 @@ export function T({ style, ...props }: TextProps) {
 }
 
 export function TBold({ style, ...props }: TextProps) {
-  const { language } = useAppStore();
+  const { language } = useSecondBrain();
   return (
     <T
       style={[language === "fa" ? { fontFamily: "Vazirmatn-SemiBold" } : { fontWeight: "700" }, style]}
@@ -53,7 +53,7 @@ export function TBold({ style, ...props }: TextProps) {
 // ---------------------------------------------------------------------------
 
 export function Input({ style, ...props }: TextInputProps) {
-  const { isRTL, language } = useAppStore();
+  const { isRTL, language } = useSecondBrain();
   const c = useThemeColors();
   return (
     <RNTextInput

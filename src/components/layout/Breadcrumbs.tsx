@@ -20,7 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { ActiveView } from "../../types";
 import { T } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
@@ -40,7 +40,7 @@ export const Breadcrumbs: React.FC = () => {
     isOffline,
     lastOfflineSyncTimestamp,
     lockVault,
-  } = useAppStore();
+  } = useSecondBrain();
   const c = useThemeColors();
 
   const getViewConfig = (
@@ -112,7 +112,7 @@ export const Breadcrumbs: React.FC = () => {
           <Home size={14} color={activeView === "dashboard" ? "#3b82f6" : "#a3a3a3"} />
           {activeView === "dashboard" && (
             <T style={{ fontSize: 12, fontWeight: "700", color: "#3b82f6" }}>
-              {isRTL ? "پایگاه دانش" : "Knowledge Base"}
+              {isRTL ? "مغز دوم" : "Second Brain"}
             </T>
           )}
         </Pressable>

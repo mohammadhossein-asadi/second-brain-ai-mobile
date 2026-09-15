@@ -22,7 +22,7 @@ import {
   FolderKanban,
   ExternalLink,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Note, NoteType, SuggestedCategory } from "../../types";
 import { NotesSkeleton } from "./ViewSkeletons";
 import { LinkSuggesterPanel } from "../ai/LinkSuggesterPanel";
@@ -56,7 +56,7 @@ export const NotesView: React.FC = () => {
     isRTL,
     t,
     showToast,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("all");
@@ -122,8 +122,8 @@ export const NotesView: React.FC = () => {
 
   const handleCreateNewNote = () => {
     const defaultContent = isRTL
-      ? "شروع به نوشتن در پایگاه دانش کنید...\n\n- نکته ۱\n- نکته ۲\n\nمی‌توانید با استفاده از [[نام یادداشت]] به یادداشت‌های دیگر پیوند بدهید."
-      : "Start capturing thoughts in your knowledge base...\n\n- Key point 1\n- Key point 2\n\nYou can link to other notes using [[Note Title]].";
+      ? "شروع به نوشتن در مغز دوم کنید...\n\n- نکته ۱\n- نکته ۲\n\nمی‌توانید با استفاده از [[نام یادداشت]] به یادداشت‌های دیگر پیوند بدهید."
+      : "Start capturing thoughts in your second brain...\n\n- Key point 1\n- Key point 2\n\nYou can link to other notes using [[Note Title]].";
 
     const newNote = addNote({
       title: isRTL ? "یادداشت جدید بدون عنوان" : "Untitled New Note",

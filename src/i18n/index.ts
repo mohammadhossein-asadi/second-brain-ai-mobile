@@ -457,7 +457,7 @@ export interface TranslationDictionary {
 export const translations: Record<Language, TranslationDictionary> = {
   fa: {
     common: {
-      appName: "پایگاه دانش",
+      appName: "مغز دوم",
       appSubtitle: "سیستم عامل مدیریت دانش شخصی",
       systemOnline: "سیستم آنلاین",
       search: "جستجوی هوشمند...",
@@ -587,7 +587,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         aiTagging: "در حال تحلیل هوشمند...",
         addTag: "افزودن",
         addTagPlaceholder: "برچسب جدید...",
-        noteContentPlaceholder: "شروع به نوشتن در پایگاه دانش کنید...",
+        noteContentPlaceholder: "شروع به نوشتن در مغز دوم کنید...",
         pinNote: "سنجاق کردن",
         unpinNote: "برداشتن سنجاق",
         deleteNote: "حذف این یادداشت",
@@ -812,7 +812,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       export: {
         title: "مرکز پشتیبان‌گیری و انتقال داده‌ها",
         subtitle: "خروجی کامل JSON و یادداشت‌های Markdown با استانداردهای آزاد",
-        descriptionText: "داده‌های شما کاملاً تحت کنترل خودتان است. در هر زمان می‌توانید کل پایگاه دانش را به عنوان فایل JSON یا یادداشت‌های Markdown استخراج کنید و در نرم‌افزارهایی مثل Obsidian، Logseq یا Notion وارد نمایید.",
+        descriptionText: "داده‌های شما کاملاً تحت کنترل خودتان است. در هر زمان می‌توانید کل مغز دوم را به عنوان فایل JSON یا یادداشت‌های Markdown استخراج کنید و در نرم‌افزارهایی مثل Obsidian، Logseq یا Notion وارد نمایید.",
         metricsTitle: "آمار و وضعیت پایگاه داده",
         storageActive: "ذخیره‌سازی محلی پایدار",
         notesMetric: "یادداشت‌ها",
@@ -858,7 +858,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         voiceRecordingActive: "در حال ضبط صدا...",
         stopVoice: "توقف و پردازش صوت",
         startVoice: "شروع ضبط صدا",
-        saveItem: "ثبت نهایی در پایگاه دانش",
+        saveItem: "ثبت نهایی در مغز دوم",
       },
       commandPalette: {
         searchPlaceholder: "جستجو در یادداشت‌ها، وظایف، پروژه‌ها و اهداف...",
@@ -885,18 +885,18 @@ export const translations: Record<Language, TranslationDictionary> = {
       },
       webClipper: {
         title: "استخراج هوشمند صفحات وب (Web Clipper)",
-        subtitle: "وارد کردن لینک برای خلاصه‌سازی و ذخیره آن در پایگاه دانش",
+        subtitle: "وارد کردن لینک برای خلاصه‌سازی و ذخیره آن در مغز دوم",
         urlPlaceholder: "https://...",
         clipButton: "استخراج و تحلیل",
         clipping: "در حال پردازش و استخراج صفحه...",
         extractedTitle: "عنوان استخراج‌شده",
         summaryLabel: "خلاصه محتوا",
-        saveToNotes: "ذخیره در یادداشت‌های پایگاه دانش",
+        saveToNotes: "ذخیره در یادداشت‌های مغز دوم",
       },
       aiAssistant: {
-        title: "دستیار هوشمند پایگاه دانش",
+        title: "دستیار هوشمند مغز دوم",
         subtitle: "متصل به کلیه نودها، وظایف، پروژه‌ها و اهداف شما",
-        connectedState: "اتصال به پایگاه دانش برقرار است",
+        connectedState: "اتصال به مغز دوم برقرار است",
         clearHistory: "پاکسازی گفتگو",
         emptyStatePrompt: "سلام! من دستیار هوشمند شما هستم. می‌توانید درباره اولویت‌بندی کارها، برنامه‌ریزی پروژه‌ها، گزارش پیشرفت یا خلاصه‌سازی یادداشت‌ها از من بپرسید.",
         inputPlaceholder: "پیام یا سوال خود را اینجا بنویسید...",
@@ -910,7 +910,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   },
   en: {
     common: {
-      appName: "Knowledge Base",
+      appName: "Second Brain",
       appSubtitle: "Personal Knowledge Operating System",
       systemOnline: "System Online",
       search: "Smart Search...",
@@ -984,7 +984,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     nav: {
       coreSection: "Core Hub",
-      databaseSection: "Knowledge Bases",
+      databaseSection: "Second Brains",
       aiToolsSection: "Tools & AI",
       dashboard: "Dashboard",
       notes: "Notes & Atoms",
@@ -1040,7 +1040,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         aiTagging: "Analyzing with AI...",
         addTag: "Add",
         addTagPlaceholder: "New tag...",
-        noteContentPlaceholder: "Start capturing thoughts in your knowledge base...",
+        noteContentPlaceholder: "Start capturing thoughts in your second brain...",
         pinNote: "Pin Note",
         unpinNote: "Unpin Note",
         deleteNote: "Delete Note",
@@ -1265,7 +1265,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       export: {
         title: "Data Portability & Backup",
         subtitle: "Full JSON backup and standard Markdown exports with zero lock-in",
-        descriptionText: "Your data belongs solely to you. At any time, you can export your entire knowledge base as a structured JSON file or standard Markdown files for import into Obsidian, Logseq, or Notion.",
+        descriptionText: "Your data belongs solely to you. At any time, you can extract the entire second brain as a structured JSON file or standard Markdown files for import into Obsidian, Logseq, or Notion.",
         metricsTitle: "Database Entities Overview",
         storageActive: "Persistent Local Storage Active",
         notesMetric: "Notes",
@@ -1311,7 +1311,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         voiceRecordingActive: "Recording audio...",
         stopVoice: "Stop & Transcribe",
         startVoice: "Start Voice Capture",
-        saveItem: "Save to Knowledge Base",
+        saveItem: "Save to Second Brain",
       },
       commandPalette: {
         searchPlaceholder: "Search notes, tasks, projects, goals, or contacts...",
@@ -1344,14 +1344,14 @@ export const translations: Record<Language, TranslationDictionary> = {
         clipping: "Analyzing and fetching web page...",
         extractedTitle: "Extracted Title",
         summaryLabel: "Summary & Insights",
-        saveToNotes: "Save to Knowledge Base Notes",
+        saveToNotes: "Save to Second Brain Notes",
       },
       aiAssistant: {
-        title: "Knowledge Base Copilot",
+        title: "Second Brain AI Copilot",
         subtitle: "Directly linked to all your notes, tasks, projects, and goals",
         connectedState: "Knowledge base synchronized",
         clearHistory: "Clear Chat",
-        emptyStatePrompt: "Hello! I am your Knowledge Base Copilot. Ask me to prioritize tasks, summarize notes, review habit streaks, or plan project milestones.",
+        emptyStatePrompt: "Hello! I am your Second Brain AI Copilot. Ask me to prioritize tasks, summarize notes, review habit streaks, or plan project milestones.",
         inputPlaceholder: "Type your message or prompt here...",
         sendButton: "Send Message",
         samplePrompt1: "What are my most urgent tasks for today?",

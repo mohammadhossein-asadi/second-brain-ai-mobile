@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import { Alert } from "react-native";
 import { Flame, Plus, Check, Trash2 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { getTodayKey } from "../../data/initialData";
 import { HabitsHeatmapSection } from "./HabitsHeatmapSection";
 import { HabitsSkeleton } from "./ViewSkeletons";
 import { T, Input, ModalShell, Btn } from "../ui/primitives";
 
 export const HabitsView: React.FC = () => {
-  const { habits, addHabit, toggleHabitToday, deleteHabit, isDataLoading, isRTL, t } = useAppStore();
+  const { habits, addHabit, toggleHabitToday, deleteHabit, isDataLoading, isRTL, t } = useSecondBrain();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");

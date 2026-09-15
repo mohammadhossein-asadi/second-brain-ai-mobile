@@ -10,7 +10,7 @@ import {
   ArrowRight,
   ArrowLeft,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { AutomationRule } from "../../types";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
 
@@ -23,7 +23,7 @@ export const AutomationView: React.FC = () => {
     deleteAutomationRule,
     isRTL,
     t,
-  } = useAppStore();
+  } = useSecondBrain();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState("");

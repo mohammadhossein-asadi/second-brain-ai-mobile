@@ -11,12 +11,12 @@ import {
   GraduationCap,
   Globe,
 } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Resource, ResourceType } from "../../types";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
 
 export const ResourcesView: React.FC = () => {
-  const { resources, addResource, updateResource, deleteResource, isRTL, t } = useAppStore();
+  const { resources, addResource, updateResource, deleteResource, isRTL, t } = useSecondBrain();
 
   const [activeType, setActiveType] = useState<ResourceType | "all">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);

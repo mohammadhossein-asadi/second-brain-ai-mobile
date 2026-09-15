@@ -1,5 +1,5 @@
 {
-  "name": "pkm-mobile",
+  "name": "second-brain-ai-mobile",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
@@ -45,6 +45,7 @@
     "@types/react": "~19.2.2",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-preset-expo": "^57.0.12",
+    "eas-cli": "^24.6.0",
     "typescript": "~6.0.3"
   },
   "scripts": {

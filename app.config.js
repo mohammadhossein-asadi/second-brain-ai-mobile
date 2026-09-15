@@ -17,8 +17,8 @@ const env = { ...loadEnv(".env"), ...loadEnv(".env.local") };
 
 module.exports = {
   expo: {
-    name: "پایگاه دانش",
-    slug: "pkm-mobile",
+    name: "مغز دوم",
+    slug: "second-brain-ai-mobile",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -26,7 +26,7 @@ module.exports = {
     assetBundlePatterns: ["**/*"],
     ios: { supportsTablet: true },
     android: {
-      package: "com.pkm.mobile",
+      package: "com.secondbrainai.mobile",
       versionCode: 1,
       adaptiveIcon: {
         backgroundColor: "#0a0e17",

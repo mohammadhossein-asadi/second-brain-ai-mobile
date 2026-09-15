@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Pressable, ScrollView, Modal } from "react-native";
 import { Settings, Check, RotateCcw, Eye, EyeOff } from "lucide-react-native";
-import { useAppStore } from "../../context/AppContext";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { aiService, getApiKey, setApiKey } from "../../services/ai";
 import { T, Input, Select } from "../ui/primitives";
 
@@ -30,7 +30,7 @@ export const ProviderSettingsModal: React.FC<{ visible: boolean; onClose: () => 
   onClose,
 }) => {
   const { isRTL, t, showToast, loadAIProviders, selectedAIProvider, setSelectedAIProvider } =
-    useAppStore();
+    useSecondBrain();
 
   const [providers, setProviders] = useState(aiService.getProviders());
   const [drafts, setDrafts] = useState<Record<string, string>>({});
