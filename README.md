@@ -62,9 +62,9 @@ This repository is the **Android edition**. The original web edition (React 19 +
 | OpenAI | OpenAI-compatible | `gpt-4o`, `gpt-4o-mini`, `gpt-3.5-turbo` (3-key rotation) |
 | OpenRouter | OpenAI-compatible | GPT-4o, Claude, DeepSeek R1 |
 | Hugging Face / DeepSeek | OpenAI-compatible | `DeepSeek-R1`, `DeepSeek-V3` |
-| Groq Cloud | OpenAI-compatible | `llama-3.3-70b-versatile` |
-| Mistral AI | OpenAI-compatible | `mistral-large-latest` |
-| SambaNova | OpenAI-compatible | `Meta-Llama-3.1-70B` |
+| Groq Cloud | OpenAI-compatible | `llama-3.1-8b-instant`, `llama-3.3-70b-versatile`, `gemma2-9b-it` |
+| Mistral AI | OpenAI-compatible | `mistral-small-latest`, `open-mistral-7b`, `mistral-large-latest` |
+| SambaNova | OpenAI-compatible | `Meta-Llama-3.3-70B-Instruct` |
 | LLM7 | OpenAI-compatible | `default`, `fast`, `pro` |
 | GLM / Z.ai | OpenAI-compatible | `glm-4-9b-chat` |
 | Ollama (Cloud/Local) | OpenAI-compatible | `gpt-oss:120b`, `llama3.2` |
