@@ -6,7 +6,14 @@
 
 **سیستم‌عامل شخصی مدیریت دانش و بهره‌وری — نسخه اندروید**
 
-`Expo SDK 57` · `React Native 0.86` · `React 19` · `TypeScript` · `NativeWind` · `MIT`
+![Expo](https://img.shields.io/badge/Expo-SDK_57-000020?logo=expo&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white)
+![NativeWind](https://img.shields.io/badge/NativeWind-4.2-06B6D4?logo=tailwindcss&logoColor=white)
+![MMKV](https://img.shields.io/badge/Storage-MMKV-orange)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+🌐 **Web version:** [second-brain-ai](https://github.com/mohammadhossein-asadi/second-brain-ai) — the original browser edition (React 19 + Vite + Express) of this project.
 
 </div>
 
@@ -14,9 +21,9 @@
 
 ## 📖 About / دربارهٔ برنامه
 
-**Second Brain AI (مغز دوم)** is a full-featured Personal Knowledge Management "operating system" for Android, built with React Native + Expo. It implements the *Building a Second Brain* methodology — **Capture → Organize → Connect → Retrieve → Act** — as a native mobile app with an integrated multi-provider AI copilot.
+**Second Brain AI (مغز دوم)** is a full-featured Personal Knowledge Management "operating system" for Android, built with React Native + Expo. It implements the *Building a Second Brain* methodology — **Capture → Organize → Connect → Retrieve → Act** — as a native mobile app with an integrated multi-provider AI copilot running **fully on-device** (no server required).
 
-**مغز دوم** یک سیستم‌عامل شخصی برای مدیریت دانش، وظایف، پروژه‌ها، عادات و درآمد است که به‌صورت کاملاً بومی برای اندروید ساخته شده و یک دستیار هوشمند چندمدلی با پشتیبانی از ۱۴ ارائه‌دهنده هوش مصنوعی دارد. رابط کاربری کاملاً دوزبانه (فارسی/انگلیسی) با پشتیبانی کامل راست‌چین است.
+This repository is the **Android edition**. The original web edition (React 19 + Vite + Express, server-side AI) lives in [second-brain-ai](https://github.com/mohammadhossein-asadi/second-brain-ai) — both share the same feature set, design language, and data key schema.
 
 ---
 
@@ -155,7 +162,7 @@ npx eas-cli build -p android --profile production
 
 ## 🔐 Security & Privacy
 
-- All data lives **only on your device** (MMKV storage, `app_v1_*` key schema) — no servers, no analytics
+- All data lives **only on your device** (MMKV storage, `second_brain_v1_*` key schema) — no servers, no analytics
 - AI provider keys are stored locally and used only for **direct calls to the providers you choose**
 - Vault PIN protects the whole knowledge base with automatic inactivity lock
 - JSON/Markdown backups are created on-device and shared through the Android share sheet
