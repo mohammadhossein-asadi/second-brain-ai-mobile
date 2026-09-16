@@ -277,7 +277,7 @@ export class AIServiceManager {
         nameFa: "گوگل جمنای",
         type: "gemini",
         defaultModel: "gemini-3.8-flash",
-        models: ["gemini-3.8-flash"],
+        models: ["gemini-3.8-flash", "gemini-3.1-flash-lite"],
         isConfigured: Boolean(getApiKey("GEMINI_API_KEY")),
         description: "Official Google GenAI SDK (multimodal, fast reasoning, high tokens)",
       },
@@ -288,7 +288,7 @@ export class AIServiceManager {
         type: "openai-compatible",
         baseURL: "https://openrouter.ai/api/v1",
         defaultModel: "openai/gpt-4o",
-        models: ["openai/gpt-4o", "anthropic/claude-3.5-sonnet", "deepseek/deepseek-r1"],
+        models: ["openai/gpt-4o", "anthropic/claude-3.5-sonnet", "deepseek/deepseek-chat"],
         isConfigured: openRouterKeys.length > 0,
         description: "Universal model aggregator supporting DeepSeek, Claude, and GPT",
       },
@@ -319,8 +319,8 @@ export class AIServiceManager {
         nameFa: "گروک (Groq LPU)",
         type: "openai-compatible",
         baseURL: "https://api.groq.com/openai/v1",
-        defaultModel: "llama-3.3-70b-versatile",
-        models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
+        defaultModel: "llama-3.1-8b-instant",
+        models: ["llama-3.1-8b-instant", "llama-3.3-70b-versatile", "gemma2-9b-it"],
         isConfigured: Boolean(getApiKey("GROQ_API_KEY")),
         description: "Ultra-low latency LPU inference engine",
       },
@@ -330,8 +330,8 @@ export class AIServiceManager {
         nameFa: "میسترال",
         type: "openai-compatible",
         baseURL: "https://api.mistral.ai/v1",
-        defaultModel: "mistral-large-latest",
-        models: ["mistral-large-latest", "mistral-small-latest"],
+        defaultModel: "mistral-small-latest",
+        models: ["mistral-small-latest", "open-mistral-7b", "mistral-large-latest"],
         isConfigured: Boolean(getApiKey("MISTRAL_API_KEY")),
         description: "European frontier open-weight and proprietary models",
       },
@@ -341,8 +341,8 @@ export class AIServiceManager {
         nameFa: "سامبانوا",
         type: "openai-compatible",
         baseURL: "https://api.sambanova.ai/v1",
-        defaultModel: "Meta-Llama-3.1-70B-Instruct",
-        models: ["Meta-Llama-3.1-70B-Instruct", "Meta-Llama-3.1-8B-Instruct"],
+        defaultModel: "Meta-Llama-3.3-70B-Instruct",
+        models: ["Meta-Llama-3.3-70B-Instruct", "Meta-Llama-3.1-8B-Instruct"],
         isConfigured: Boolean(getApiKey("SAMBANOVA_API_KEY")),
         description: "Fast SN40L Reconfigurable Dataflow chip cluster",
       },
@@ -453,21 +453,21 @@ export class AIServiceManager {
         apiKey = getApiKey("GROQ_API_KEY");
         if (!apiKey) throw new Error("No Groq API key found");
         baseURL = "https://api.groq.com/openai/v1";
-        defaultModel = req.model || "llama-3.3-70b-versatile";
+        defaultModel = req.model || "llama-3.1-8b-instant";
         break;
       }
       case "mistral": {
         apiKey = getApiKey("MISTRAL_API_KEY");
         if (!apiKey) throw new Error("No Mistral API key found");
         baseURL = "https://api.mistral.ai/v1";
-        defaultModel = req.model || "mistral-large-latest";
+        defaultModel = req.model || "mistral-small-latest";
         break;
       }
       case "sambanova": {
         apiKey = getApiKey("SAMBANOVA_API_KEY");
         if (!apiKey) throw new Error("No SambaNova API key found");
         baseURL = "https://api.sambanova.ai/v1";
-        defaultModel = req.model || "Meta-Llama-3.1-70B-Instruct";
+        defaultModel = req.model || "Meta-Llama-3.3-70B-Instruct";
         break;
       }
       case "bazaarlink": {
