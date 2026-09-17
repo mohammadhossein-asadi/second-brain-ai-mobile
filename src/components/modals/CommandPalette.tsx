@@ -33,6 +33,8 @@ import {
   DollarSign,
   HardDriveDownload,
   Bot,
+  Calendar,
+  Maximize2,
 } from "lucide-react-native";
 import { useSecondBrain } from "../../context/SecondBrainContext";
 import { ActiveView } from "../../types";
@@ -186,6 +188,8 @@ export const CommandPalette: React.FC = () => {
     showToast,
     isRTL,
     t,
+    openOrCreateDailyNote,
+    toggleFocusMode,
   } = useSecondBrain();
 
   const [query, setQuery] = useState("");
@@ -380,6 +384,30 @@ export const CommandPalette: React.FC = () => {
   // 2. Action Definitions
   const actionDefinitions = useMemo(
     () => [
+      {
+        id: "act-daily-note",
+        title: isRTL ? "یادداشت روزانه امروز (Daily Note)" : "Today's Daily Note",
+        subtitle: isRTL ? "ایجاد یا باز کردن سریع یادداشت روز جاری با الگوی روزانه" : "Create or open daily note for today",
+        icon: Calendar,
+        badge: "Daily",
+        keywords: ["daily", "today", "note", "journal", "روزانه", "امروز", "یادداشت"],
+        action: () => {
+          setIsCommandPaletteOpen(false);
+          openOrCreateDailyNote();
+        },
+      },
+      {
+        id: "act-focus-mode",
+        title: isRTL ? "تغییر وضعیت حالت تمرکز (Focus Mode)" : "Toggle Focus Mode",
+        subtitle: isRTL ? "پنهان‌سازی سایدبار و المان‌های ناوبری برای تمرکز کامل" : "Hide sidebar and navigation elements to minimize distractions",
+        icon: Maximize2,
+        badge: "Focus",
+        keywords: ["focus", "zen", "minimal", "distraction", "تمرکز", "خلوت", "سایدبار"],
+        action: () => {
+          setIsCommandPaletteOpen(false);
+          toggleFocusMode();
+        },
+      },
       {
         id: "act-quick-note",
         title: t.modals.commandPalette.quickNoteAction,

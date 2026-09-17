@@ -1,6 +1,7 @@
-import React, { useState, useRef, useCallback } from "react";
-import { View, Pressable, Modal as RNModal, Animated } from "react-native";
-import { Lock, KeyRound, Delete, AlertCircle, Clock, CheckCircle2 } from "lucide-react-native";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { View, Pressable, Modal as RNModal, Animated, Platform } from "react-native";
+import { Lock, KeyRound, Delete, AlertCircle, Clock, CheckCircle2, ScanFace } from "lucide-react-native";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T, TBold, Input } from "../ui/primitives";
 
@@ -37,6 +38,9 @@ export const VaultLockScreen: React.FC = () => {
     setVaultPin,
     autoLockMinutes,
     isRTL,
+    biometricEnabled,
+    setBiometricEnabled,
+    unlockVaultBiometric,
   } = useSecondBrain();
   const [pinInput, setPinInput] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -126,6 +130,59 @@ export const VaultLockScreen: React.FC = () => {
       setErrorMsg(null);
     }
   };
+
+  const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
+  const [isBiometricBusy, setIsBiometricBusy] = useState(false);
+
+  // One-time hardware/enrollment probe — drives whether biometric UI is offered
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [hasHardware, enrolled] = await Promise.all([
+          LocalAuthentication.hasHardwareAsync(),
+          LocalAuthentication.isEnrolledAsync(),
+        ]);
+        if (!cancelled) setIsBiometricAvailable(hasHardware && enrolled);
+      } catch {
+        if (!cancelled) setIsBiometricAvailable(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const biometricLabel = Platform.OS === "ios" ? "Face ID" : isRTL ? "بیومتریک" : "Biometric";
+
+  const runBiometricUnlock = useCallback(async () => {
+    if (isBiometricBusy) return;
+    setIsBiometricBusy(true);
+    const result = await unlockVaultBiometric();
+    setIsBiometricBusy(false);
+    if (result.reason === "unavailable") {
+      setErrorMsg(isRTL ? "بیومتریک روی این دستگاه در دسترس نیست" : "Biometric unlock is not available on this device");
+      runShake();
+    }
+    // "failed" (user cancelled / sensor rejected) stays silent — the PIN pad is right there
+  }, [isBiometricBusy, unlockVaultBiometric, isRTL, runShake]);
+
+  const handleToggleBiometric = useCallback(async () => {
+    if (biometricEnabled) {
+      setBiometricEnabled(false);
+      return;
+    }
+    // Verify biometrics actually work before persisting the preference
+    setBiometricEnabled(true);
+    const result = await unlockVaultBiometric();
+    if (!result.success) {
+      setBiometricEnabled(false);
+      if (result.reason === "unavailable") {
+        setErrorMsg(isRTL ? "بیومتریک روی این دستگاه در دسترس نیست" : "Biometric unlock is not available on this device");
+        runShake();
+      }
+    }
+  }, [biometricEnabled, setBiometricEnabled, unlockVaultBiometric, isRTL, runShake]);
 
   const handleChangePinSubmit = () => {
     if (newPin.length < 4) {
@@ -354,6 +411,30 @@ export const VaultLockScreen: React.FC = () => {
                     {isRTL ? "بازگشایی سریع (۱۲۳۴)" : "Quick Unlock (1234)"}
                   </T>
                 </Pressable>
+
+                {biometricEnabled && isBiometricAvailable && (
+                  <Pressable
+                    onPress={runBiometricUnlock}
+                    disabled={isBiometricBusy}
+                    style={({ pressed }) => ({
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 6,
+                      borderRadius: 999,
+                      backgroundColor: pressed ? "rgba(16,185,129,0.2)" : "rgba(16,185,129,0.1)",
+                      borderWidth: 1,
+                      borderColor: "rgba(16,185,129,0.35)",
+                      paddingHorizontal: 12,
+                      paddingVertical: 4,
+                      opacity: isBiometricBusy ? 0.5 : 1,
+                    })}
+                  >
+                    <ScanFace size={12} color="#34d399" />
+                    <T style={{ fontSize: 11, fontWeight: "600", color: "#34d399" }}>
+                      {isRTL ? `بازگشایی با ${biometricLabel}` : `Unlock with ${biometricLabel}`}
+                    </T>
+                  </Pressable>
+                )}
               </View>
 
               <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -372,6 +453,23 @@ export const VaultLockScreen: React.FC = () => {
                   </T>
                 </Pressable>
               </View>
+
+              <Pressable
+                onPress={handleToggleBiometric}
+                disabled={isBiometricBusy}
+                hitSlop={8}
+                style={({ pressed }) => ({ alignSelf: "flex-end", opacity: pressed || isBiometricBusy ? 0.7 : 1 })}
+              >
+                <T style={{ fontSize: 11, color: "#a3a3a3", textDecorationLine: "underline" }}>
+                  {biometricEnabled
+                    ? isRTL
+                      ? `غیرفعال‌سازی بازگشایی با ${biometricLabel}`
+                      : `Disable ${biometricLabel} unlock`
+                    : isRTL
+                      ? `فعال‌سازی بازگشایی با ${biometricLabel}`
+                      : `Enable ${biometricLabel} unlock`}
+                </T>
+              </Pressable>
             </View>
 
             {/* Change PIN dialog */}

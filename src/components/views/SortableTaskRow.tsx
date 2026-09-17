@@ -16,6 +16,8 @@ interface SortableTaskRowProps {
   deleteTask: (id: string) => void;
   drag: () => void;
   isActive: boolean;
+  selectedTag?: string;
+  onTagClick?: (tag: string) => void;
 }
 
 /**
@@ -33,6 +35,8 @@ export const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
   deleteTask,
   drag,
   isActive,
+  selectedTag,
+  onTagClick,
 }) => {
   return (
     <View
@@ -92,6 +96,36 @@ export const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
           <T numberOfLines={1} style={{ fontSize: 12, color: "#a3a3a3", marginTop: 2 }}>
             {taskItem.description}
           </T>
+        ) : null}
+
+        {/* Tags */}
+        {taskItem.tags && taskItem.tags.length > 0 ? (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
+            {taskItem.tags.map((tag) => {
+              const isSelected = selectedTag === tag;
+              return (
+                <Pressable
+                  key={tag}
+                  onPress={() => onTagClick?.(tag)}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 2,
+                    borderRadius: 6,
+                    paddingHorizontal: 6,
+                    paddingVertical: 2,
+                    backgroundColor: isSelected ? "#2563eb" : "rgba(23,37,84,0.4)",
+                    borderWidth: 1,
+                    borderColor: isSelected ? "#3b82f6" : "rgba(30,64,175,0.4)",
+                  }}
+                >
+                  <T style={{ fontSize: 10, fontWeight: "500", color: isSelected ? "#ffffff" : "#93c5fd" }}>
+                    #{tag}
+                  </T>
+                </Pressable>
+              );
+            })}
+          </View>
         ) : null}
 
         {/* Mobile meta row: project / due / estimate */}

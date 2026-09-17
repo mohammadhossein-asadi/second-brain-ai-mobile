@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Pressable, ScrollView } from "react-native";
+import React, { useState, useMemo } from "react";
+import { View, Pressable, ScrollView, TextInput } from "react-native";
 import { Alert } from "react-native";
 import {
   FileText,
@@ -21,12 +21,18 @@ import {
   Link2,
   FolderKanban,
   ExternalLink,
+  X,
+  Plus as PlusIcon,
+  Filter,
+  X as XIcon,
 } from "lucide-react-native";
 import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Note, NoteType, SuggestedCategory } from "../../types";
 import { NotesSkeleton } from "./ViewSkeletons";
 import { LinkSuggesterPanel } from "../ai/LinkSuggesterPanel";
-import { T, Input, Select, Spinner, Btn } from "../ui/primitives";
+import { EmptyState } from "../ui/EmptyState";
+import { TagInput } from "../ui/TagInput";
+import { T, Input, Select, ModalShell, Btn, Spinner } from "../ui/primitives";
 
 const AVAILABLE_CATEGORIES = [
   { id: "Personal", name: "Personal", nameFa: "شخصی", icon: "🌱" },
@@ -47,6 +53,7 @@ export const NotesView: React.FC = () => {
     deleteNote,
     generateTagsForNote,
     suggestCategoriesForNote,
+    suggestLinksForNote,
     generateOneSentenceSummary,
     generateMissingNoteSummaries,
     projects,
@@ -56,6 +63,21 @@ export const NotesView: React.FC = () => {
     isRTL,
     t,
     showToast,
+    localSearchQuery,
+    selectedFolderId,
+    folders,
+    trackRecentItem,
+    addFolder,
+    updateFolder,
+    deleteFolder,
+    setIsManageFolderModalOpen,
+    setFolderBeingEdited,
+    renameTagGlobally,
+    deleteTagGlobally,
+    allWorkspaceTags,
+    isOnboardingOpen,
+    setIsOnboardingOpen,
+    toggleFocusMode,
   } = useSecondBrain();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,6 +90,15 @@ export const NotesView: React.FC = () => {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isSummarizingAllNotes, setIsSummarizingAllNotes] = useState(false);
   const [newTagInput, setNewTagInput] = useState("");
+  const [isTagSuggestionsOpen, setIsTagSuggestionsOpen] = useState(false);
+  const [tagHighlightedIndex, setTagHighlightedIndex] = useState(-1);
+  const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+  const [tagRenameState, setTagRenameState] = useState<{ oldTag: string; newTag: string; isGlobal: boolean } | null>(null);
+  const [tagSearchInManager, setTagSearchInManager] = useState("");
+  const [noteTagSuggestions, setNoteTagSuggestions] = useState<string[]>([]);
+  const [activeTag, setActiveTag] = useState("");
+  const [tagCounts, setTagCounts] = useState<Record<string, number>>({});
+  const [workspaceUnusedTags, setWorkspaceUnusedTags] = useState<string[]>([]);
   // Mobile navigation state between list and editor
   const [mobileMode, setMobileMode] = useState<"list" | "editor">("list");
 
@@ -102,6 +133,7 @@ export const NotesView: React.FC = () => {
     return isRTL ? matched.nameFa : matched.name;
   };
 
+  const effectiveSearch = (searchQuery || localSearchQuery).trim().toLowerCase();
   const filteredNotes = notes.filter((n) => {
     if (
       selectedCategoryFilter !== "all" &&
@@ -110,10 +142,16 @@ export const NotesView: React.FC = () => {
       return false;
     }
     if (selectedTag !== "all" && !n.tags.includes(selectedTag)) return false;
+    if (selectedFolderId) {
+      const folder = folders.find((f) => f.id === selectedFolderId);
+      if (folder && (!folder.itemIds?.noteIds || !folder.itemIds.noteIds.includes(n.id))) {
+        return false;
+      }
+    }
     if (
-      searchQuery &&
-      !n.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !n.content.toLowerCase().includes(searchQuery.toLowerCase())
+      effectiveSearch &&
+      !n.title.toLowerCase().includes(effectiveSearch) &&
+      !n.content.toLowerCase().includes(effectiveSearch)
     ) {
       return false;
     }
@@ -135,6 +173,12 @@ export const NotesView: React.FC = () => {
       tags: isRTL ? ["پیش‌نویس"] : ["draft"],
     });
     setSelectedNoteId(newNote.id);
+    trackRecentItem({
+      itemId: newNote.id,
+      type: "note",
+      title: newNote.title,
+      view: "notes",
+    });
     setCategorySuggestions([]);
     setIsPreviewMode(false);
     setMobileMode("editor");
@@ -418,7 +462,7 @@ export const NotesView: React.FC = () => {
                       </T>
                     </Pressable>
                   );
-                })}
+                }) }
               </View>
             </ScrollView>
 
@@ -473,6 +517,12 @@ export const NotesView: React.FC = () => {
                     key={note.id}
                     onPress={() => {
                       setSelectedNoteId(note.id);
+                      trackRecentItem({
+                        itemId: note.id,
+                        type: "note",
+                        title: note.title,
+                        view: "notes",
+                      });
                       setMobileMode("editor");
                     }}
                     style={({ pressed }) => ({
@@ -581,13 +631,13 @@ export const NotesView: React.FC = () => {
                         { value: "book_summary" as NoteType, label: isRTL ? "خلاصه مطالعه" : "Book Summary" },
                         { value: "bookmark" as NoteType, label: isRTL ? "بوکمارک وب" : "Bookmark" },
                       ]}
-                      onChange={(v) => updateNote(activeNote.id, { type: v })}
+                      onChange={(v) => updateNote(activeNote.id, { type: v }) }
                     />
                   </View>
 
                   {/* Pin toggle */}
                   <Pressable
-                    onPress={() => updateNote(activeNote.id, { isPinned: !activeNote.isPinned })}
+                    onPress={() => updateNote(activeNote.id, { isPinned: !activeNote.isPinned }) }
                     style={[
                       toolbarBtnStyle,
                       {
@@ -689,7 +739,7 @@ export const NotesView: React.FC = () => {
                 {/* Title Input */}
                 <Input
                   value={activeNote.title}
-                  onChangeText={(v) => updateNote(activeNote.id, { title: v })}
+                  onChangeText={(v) => updateNote(activeNote.id, { title: v }) }
                   placeholder={t.views.notes.untitledNote}
                   style={{ fontSize: 20, fontWeight: "700", color: "#ffffff", paddingVertical: 4 }}
                 />
@@ -825,7 +875,7 @@ export const NotesView: React.FC = () => {
                               label: `${cat.icon} ${isRTL ? cat.nameFa : cat.name}`,
                             })),
                           ]}
-                          onChange={(v) => updateNote(activeNote.id, { category: v || undefined })}
+                          onChange={(v) => updateNote(activeNote.id, { category: v || undefined }) }
                         />
                       </View>
 
@@ -903,7 +953,7 @@ export const NotesView: React.FC = () => {
                             <Pressable
                               key={cat.name}
                               onPress={() => handleApplyCategory(cat.name, cat.nameFa)}
-                              style={({ pressed }) => ({
+style={({ pressed }) => ({
                                 flexDirection: isRTL ? "row-reverse" : "row",
                                 alignItems: "center",
                                 gap: 6,
@@ -930,7 +980,7 @@ export const NotesView: React.FC = () => {
                               {isApplied ? null : null}
                             </Pressable>
                           );
-                        })}
+                        }) }
                       </View>
 
                       {categorySuggestions[0]?.reason ? (
@@ -966,7 +1016,7 @@ export const NotesView: React.FC = () => {
                 <Input
                   multiline
                   value={activeNote.content}
-                  onChangeText={(v) => updateNote(activeNote.id, { content: v })}
+                  onChangeText={(v) => updateNote(activeNote.id, { content: v }) }
                   placeholder={t.views.notes.noteContentPlaceholder}
                   style={{
                     width: "100%",
@@ -1028,7 +1078,7 @@ export const NotesView: React.FC = () => {
                         backgroundColor: pressed ? "#262626" : "#171717",
                         paddingHorizontal: 10,
                         paddingVertical: 4,
-                      })}
+                      }) }
                     >
                       <T style={{ fontSize: 12, color: "#d4d4d4" }}>+</T>
                     </Pressable>
