@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, Linking } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,10 +36,23 @@ import { useThemeColors } from "./src/lib/theme";
 import "./global.css";
 
 function MainLayout() {
-  const { activeView, setActiveView, theme } = useSecondBrain();
+  const { activeView, setActiveView, theme, setIsQuickCaptureOpen } = useSecondBrain();
   const c = useThemeColors();
   const insets = useSafeAreaInsets();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Quick-capture widget deep link: secondbrain://quick-capture
+  useEffect(() => {
+    const processUrl = (url: string | null) => {
+      if (!url) return;
+      if (/^(secondbrain|com\.secondbrainai\.mobile):\/\/quick-capture/.test(url)) {
+        setIsQuickCaptureOpen(true);
+      }
+    };
+    Linking.getInitialURL().then(processUrl);
+    const sub = Linking.addEventListener("url", ({ url }) => processUrl(url));
+    return () => sub.remove();
+  }, [setIsQuickCaptureOpen]);
 
   // Render current view
   const renderView = () => {

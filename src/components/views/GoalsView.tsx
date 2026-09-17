@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { View, Pressable, ScrollView } from "react-native";
 import Slider from "@react-native-community/slider";
 import { Alert } from "react-native";
-import { Target, Plus, Edit2, Trash2, Calendar, CheckCircle2 } from "lucide-react-native";import { useSecondBrain } from "../../context/SecondBrainContext";
+import { Target, Plus, Edit2, Trash2, Calendar, CheckCircle2 } from "lucide-react-native";
+import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Goal, GoalTimeframe, Status } from "../../types";
 import { GoalsSkeleton } from "./ViewSkeletons";
+import { CircularProgress } from "../ui/CircularProgress";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
 
 export const GoalsView: React.FC = () => {
@@ -171,6 +173,19 @@ export const GoalsView: React.FC = () => {
           filteredGoals.map((goal) => {
             const linkedTasks = tasks.filter((task) => task.goalId === goal.id);
             const completedTasks = linkedTasks.filter((task) => task.isCompleted).length;
+            const calculatedPct = linkedTasks.length > 0
+              ? Math.round((completedTasks / linkedTasks.length) * 100)
+              : Math.min(100, Math.max(0, goal.progress ?? 0));
+
+            const ringColor = calculatedPct === 100
+              ? "#34d399"
+              : calculatedPct >= 70
+              ? "#60a5fa"
+              : calculatedPct >= 35
+              ? "#818cf8"
+              : calculatedPct > 0
+              ? "#fbbf24"
+              : "#525252";
 
             return (
               <View
@@ -179,11 +194,30 @@ export const GoalsView: React.FC = () => {
                 style={{ justifyContent: "space-between" }}
               >
                 <View>
-                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "flex-start", justifyContent: "space-between" }}>
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <View className="rounded-full border border-neutral-800 bg-neutral-900 px-3 py-1">
                       <T style={{ fontSize: 12, fontWeight: "700", color: "#60a5fa" }}>
                         {getTimeframeLabel(goal.timeframe || goal.timeline)}
                       </T>
+                    </View>
+                    {goal.isCompleted ? (
+                      <View className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5">
+                        <T style={{ fontSize: 10, fontWeight: "700", color: "#34d399" }}>
+                          {isRTL ? "تکمیل‌شده" : "Completed"}
+                        </T>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                    {/* Visual Completion Progress Ring */}
+                    <View pointerEvents="none">
+                      <CircularProgress progress={calculatedPct} size={38} strokeWidth={3.5} strokeColor={ringColor} trackColor="#262626">
+                        <T style={{ fontSize: 9, fontWeight: "700", color: "#ffffff" }}>
+                          {calculatedPct}%
+                        </T>
+                      </CircularProgress>
                     </View>
 
                     <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
@@ -195,6 +229,7 @@ export const GoalsView: React.FC = () => {
                       </Pressable>
                     </View>
                   </View>
+                </View>
 
                   <T style={{ marginTop: 16, fontSize: 13, fontWeight: "700", color: "#ffffff" }}>
                     {goal.name}
@@ -219,7 +254,7 @@ export const GoalsView: React.FC = () => {
                 <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: "rgba(38,38,38,0.8)", gap: 12 }}>
                   <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
                     <T style={{ fontSize: 12, color: "#a3a3a3" }}>{t.common.progress}</T>
-                    <T style={{ fontSize: 13, fontWeight: "700", color: "#60a5fa" }}>{goal.progress}%</T>
+                    <T style={{ fontSize: 13, fontWeight: "700", color: "#60a5fa" }}>{calculatedPct}%</T>
                   </View>
 
                   <View
@@ -238,17 +273,33 @@ export const GoalsView: React.FC = () => {
                         height: "100%",
                         borderRadius: 999,
                         backgroundColor: "#60a5fa",
-                        width: `${goal.progress}%`,
+                        width: `${calculatedPct}%`,
                       }}
                     />
                   </View>
 
                   {linkedTasks.length > 0 ? (
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
-                      <CheckCircle2 size={14} color="#60a5fa" />
-                      <T style={{ fontSize: 12, color: "#a3a3a3" }}>
-                        {completedTasks} / {linkedTasks.length} {t.views.projects.tasksCount}
-                      </T>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between" }}>
+                      <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+                        <CheckCircle2 size={14} color="#34d399" />
+                        <T style={{ fontSize: 12, fontWeight: "500", color: "#34d399" }}>
+                          {completedTasks} / {linkedTasks.length} {t.views.projects.tasksCount}
+                        </T>
+                      </View>
+                      <View
+                        style={{
+                          backgroundColor: "#171717",
+                          borderWidth: 1,
+                          borderColor: "rgba(38,38,38,0.8)",
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                          borderRadius: 6,
+                        }}
+                      >
+                        <T style={{ fontSize: 10, color: "#737373" }}>
+                          {Math.round((completedTasks / linkedTasks.length) * 100)}%
+                        </T>
+                      </View>
                     </View>
                   ) : null}
                 </View>

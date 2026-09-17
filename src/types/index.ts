@@ -28,6 +28,7 @@ export interface Project {
   tasksCount?: number;
   completedTasksCount?: number;
   isArchived?: boolean;
+  folderId?: string;
 }
 
 export interface Task {
@@ -46,6 +47,8 @@ export interface Task {
   completedAt?: string;
   reminderSet?: boolean;
   reminderTime?: string;
+  folderId?: string;
+  tags?: string[];
 }
 
 export interface Goal {
@@ -142,6 +145,7 @@ export interface Note {
   linkedNoteIds?: string[];
   linkedProjectIds?: string[];
   linkedContactIds?: string[];
+  folderId?: string;
 }
 
 export interface SuggestedLink {
@@ -278,4 +282,29 @@ export interface Toast {
   message: string;
   type?: ToastType;
   duration?: number;
+}
+
+export interface RecentItem {
+  id: string;
+  itemId: string;
+  type: "note" | "task" | "project" | "resource" | "contact" | "goal" | "habit";
+  title: string;
+  view: ActiveView;
+  visitedAt: number;
+  badge?: string;
+}
+
+export interface WorkspaceFolder {
+  id: string;
+  name: string;
+  color?: string; // "blue" | "emerald" | "amber" | "purple" | "rose" | "cyan" | "indigo"
+  icon?: string;
+  description?: string;
+  category?: "work" | "personal" | "archived" | "general";
+  itemIds: {
+    noteIds?: string[];
+    taskIds?: string[];
+    projectIds?: string[];
+  };
+  createdAt: string;
 }

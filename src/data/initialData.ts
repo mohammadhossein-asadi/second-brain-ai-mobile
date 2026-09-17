@@ -11,6 +11,8 @@ import {
   SelfAwareness,
   AutomationRule,
   ProactiveSuggestion,
+  RecentItem,
+  WorkspaceFolder,
 } from "../types";
 
 export const initialProjects: Project[] = [
@@ -80,6 +82,7 @@ export const initialTasks: Task[] = [
     estimatedTime: 4,
     projectId: "proj-1",
     goalId: "goal-3",
+    tags: ["معماری", "پایگاه_داده", "نوتیون"],
   },
   {
     id: "task-2",
@@ -92,6 +95,7 @@ export const initialTasks: Task[] = [
     estimatedTime: 6,
     projectId: "proj-1",
     goalId: "goal-2",
+    tags: ["کسب‌وکار", "استارتاپ", "استراتژی"],
   },
   {
     id: "task-3",
@@ -104,6 +108,7 @@ export const initialTasks: Task[] = [
     estimatedTime: 1,
     projectId: "proj-2",
     goalId: "goal-1",
+    tags: ["زبان", "هوش_مصنوعی", "یادگیری"],
   },
   {
     id: "task-4",
@@ -116,6 +121,7 @@ export const initialTasks: Task[] = [
     estimatedTime: 1.5,
     projectId: "proj-3",
     goalId: "goal-4",
+    tags: ["کتاب", "عادت", "توسعه_فردی"],
   },
   {
     id: "task-5",
@@ -127,6 +133,7 @@ export const initialTasks: Task[] = [
     dueDate: "۱۴۰۳/۰۹/۲۱",
     estimatedTime: 1,
     projectId: "proj-1",
+    tags: ["ارتباطات", "زیرساخت", "جلسه"],
   },
   {
     id: "task-6",
@@ -138,6 +145,7 @@ export const initialTasks: Task[] = [
     dueDate: "۱۴۰۳/۰۹/۲۳",
     estimatedTime: 2,
     goalId: "goal-3",
+    tags: ["برنامه‌ریزی", "اهداف", "مرور"],
   },
   {
     id: "task-7",
@@ -149,6 +157,7 @@ export const initialTasks: Task[] = [
     dueDate: "۱۴۰۳/۰۹/۱۷",
     estimatedTime: 0.5,
     goalId: "goal-5",
+    tags: ["سلامت", "مدیتیشن", "ورزش"],
   },
   {
     id: "task-8",
@@ -160,6 +169,7 @@ export const initialTasks: Task[] = [
     dueDate: "۱۴۰۳/۰۹/۳۰",
     estimatedTime: 2,
     projectId: "proj-4",
+    tags: ["سرمایه‌گذاری", "مالی", "تحلیل"],
   },
 ];
 
@@ -808,3 +818,97 @@ export const initialSuggestions: ProactiveSuggestion[] = [
     actionText: "مشاهده کارت مخاطب",
   },
 ];
+
+export const initialRecentItems: RecentItem[] = [
+  {
+    id: "recent-1",
+    itemId: "note-1",
+    type: "note",
+    title: "مغز دوم و متدولوژی مدرن یادداشت‌برداری",
+    view: "notes",
+    visitedAt: Date.now() - 1000 * 60 * 6,
+    badge: "Personal",
+  },
+  {
+    id: "recent-2",
+    itemId: "task-1",
+    type: "task",
+    title: "تکمیل نقشه راه فنی پلتفرم و انتخاب استک نهایی",
+    view: "tasks",
+    visitedAt: Date.now() - 1000 * 60 * 18,
+    badge: "Work",
+  },
+  {
+    id: "recent-3",
+    itemId: "proj-1",
+    type: "project",
+    title: "راه‌اندازی استارتاپ اجوکیشن آنلاین",
+    view: "projects",
+    visitedAt: Date.now() - 1000 * 60 * 35,
+    badge: "Work",
+  },
+  {
+    id: "recent-4",
+    itemId: "note-2",
+    type: "note",
+    title: "ایده‌های محوری برای محصول آموزشی و استارتاپ",
+    view: "notes",
+    visitedAt: Date.now() - 1000 * 60 * 75,
+    badge: "Ideas",
+  },
+  {
+    id: "recent-5",
+    itemId: "task-2",
+    type: "task",
+    title: "تدوین بوم مدل کسب‌وکار (Business Canvas)",
+    view: "tasks",
+    visitedAt: Date.now() - 1000 * 60 * 120,
+    badge: "Work",
+  },
+];
+
+export const initialFolders: WorkspaceFolder[] = [
+  {
+    id: "folder-startup",
+    name: "استارتاپ و تکنولوژی",
+    color: "blue",
+    icon: "🚀",
+    description: "تمام تسک‌ها، پروژه‌ها و یادداشت‌های مربوط به راه‌اندازی استارتاپ اجوکیشن",
+    category: "work",
+    itemIds: {
+      noteIds: ["note-2"],
+      taskIds: ["task-1", "task-2"],
+      projectIds: ["proj-1"],
+    },
+    createdAt: "۱۴۰۳/۰۹/۰۱",
+  },
+  {
+    id: "folder-selfdev",
+    name: "توسعه فردی و یادگیری",
+    color: "emerald",
+    icon: "🌱",
+    description: "مطالعه، بهبود مهارت‌ها، عادات روزانه و یادداشت‌های متدولوژی",
+    category: "personal",
+    itemIds: {
+      noteIds: ["note-1", "note-3"],
+      taskIds: ["task-3", "task-4"],
+      projectIds: ["proj-2", "proj-3"],
+    },
+    createdAt: "۱۴۰۳/۰۹/۰۵",
+  },
+  {
+    id: "folder-finance",
+    name: "امور مالی و سرمایه‌گذاری",
+    color: "amber",
+    icon: "💰",
+    description: "مدیریت حساب‌ها، درآمدها و اسناد سرمایه‌گذاری",
+    category: "work",
+    itemIds: {
+      noteIds: [],
+      taskIds: [],
+      projectIds: ["proj-4"],
+    },
+    createdAt: "۱۴۰۳/۰۹/۱۰",
+  },
+];
+

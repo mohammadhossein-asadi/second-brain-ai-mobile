@@ -35,6 +35,7 @@ export const KeyboardShortcutsModal: React.FC = () => {
     setActiveView,
     toggleTheme,
     toggleLanguage,
+    toggleFocusMode,
     isRTL,
     t,
   } = useSecondBrain();
@@ -102,6 +103,19 @@ export const KeyboardShortcutsModal: React.FC = () => {
       action: () => {
         setIsShortcutsModalOpen(false);
         setIsAIAssistantOpen(true);
+      },
+    },
+    {
+      id: "focus-mode",
+      keys: ["F"],
+      titleFa: "تغییر حالت تمرکز (Focus Mode)",
+      titleEn: "Toggle Focus Mode",
+      descriptionFa: "پنهان‌سازی سایدبار، نوارها و تمام المان‌های ناوبری برای تمرکز کامل بر محتوا",
+      descriptionEn: "Hide sidebar, header, and navigation to work without distractions",
+      category: "actions",
+      action: () => {
+        setIsShortcutsModalOpen(false);
+        toggleFocusMode();
       },
     },
     {
