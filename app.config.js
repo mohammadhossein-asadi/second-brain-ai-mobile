@@ -20,11 +20,22 @@ module.exports = {
     name: "مغز دوم",
     slug: "second-brain-ai-mobile",
     version: "1.0.0",
+    scheme: "secondbrain",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",
     assetBundlePatterns: ["**/*"],
-    ios: { supportsTablet: true },
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.secondbrainai.mobile",
+      buildNumber: "1",
+      infoPlist: {
+        // Required for expo-local-authentication Face ID prompt (feature: biometric vault unlock).
+        // Static English string for now; localize later via infoplist strings if needed.
+        NSFaceIDUsageDescription:
+          "Face ID is used to unlock your vault and keep your notes private.",
+      },
+    },
     android: {
       package: "com.secondbrainai.mobile",
       versionCode: 1,
@@ -66,6 +77,7 @@ module.exports = {
         "./src/plugins/withAndroidRtl.js",
         {},
       ],
+      "./src/plugins/withIosQuickCaptureWidget.js",
     ],
     experiments: { typedRoutes: false },
     extra: {

@@ -6,10 +6,16 @@ import {
   Database,
   FileText,
   RotateCcw,
+  Lock,
 } from "lucide-react-native";
 import { useSecondBrain } from "../../context/SecondBrainContext";
 import { writeAndShareFile, pickAndReadTextFile, backupFilename } from "../../lib/files";
-import { T, Btn } from "../ui/primitives";
+import {
+  shareEncryptedBackup,
+  restoreFromEncryptedBackup,
+  validatePassphrase,
+} from "../../services/backup/backupService";
+import { T, Btn, Input } from "../ui/primitives";
 
 export const ExportView: React.FC = () => {
   const {
@@ -18,6 +24,7 @@ export const ExportView: React.FC = () => {
     projects,
     goals,
     habits,
+    exportFullBackupJSON,
     downloadBackupJSON,
     importFullBackupJSON,
     resetToDefaults,
@@ -26,6 +33,60 @@ export const ExportView: React.FC = () => {
   } = useSecondBrain();
 
   const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [encPassphrase, setEncPassphrase] = useState("");
+  const [encBusy, setEncBusy] = useState(false);
+  const [encStatus, setEncStatus] = useState<string | null>(null);
+
+  const handleEncryptedCreate = async () => {
+    if (!validatePassphrase(encPassphrase)) {
+      setEncStatus(t.views.export.encPassTooShort);
+      return;
+    }
+    setEncBusy(true);
+    setEncStatus(null);
+    try {
+      const json = exportFullBackupJSON();
+      const result = await shareEncryptedBackup(json, encPassphrase);
+      setEncStatus(
+        result.success
+          ? t.views.export.encCreateSuccess
+          : t.views.export.encPassTooShort
+      );
+    } catch {
+      setEncStatus(t.views.export.restoreError);
+    } finally {
+      setEncBusy(false);
+    }
+  };
+
+  const handleEncryptedRestore = async () => {
+    if (!validatePassphrase(encPassphrase)) {
+      setEncStatus(t.views.export.encPassTooShort);
+      return;
+    }
+    setEncBusy(true);
+    setEncStatus(null);
+    try {
+      const result = await restoreFromEncryptedBackup(encPassphrase);
+      if (result.success && result.message) {
+        const restore = importFullBackupJSON(result.message);
+        setEncStatus(
+          restore.success ? t.views.export.encRestoreSuccess : t.views.export.restoreError
+        );
+      } else if (result.reason === "wrong-passphrase") {
+        setEncStatus(t.views.export.encWrongPassphrase);
+      } else if (result.reason === "bad-file") {
+        setEncStatus(t.views.export.encBadFile);
+      } else if (result.reason === "short-passphrase") {
+        setEncStatus(t.views.export.encPassTooShort);
+      }
+      // canceled: no status
+    } catch {
+      setEncStatus(t.views.export.restoreError);
+    } finally {
+      setEncBusy(false);
+    }
+  };
 
   const handleExportJSON = () => {
     downloadBackupJSON();
@@ -143,6 +204,68 @@ export const ExportView: React.FC = () => {
             fullWidth
             style={{ marginTop: 20 }}
           />
+        </View>
+
+        {/* End-to-End Encrypted Backup */}
+        <View className="rounded-3xl border border-neutral-800 bg-neutral-900/60 p-6">
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 12 }}>
+            <View className="h-10 w-10 items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-950">
+              <Lock size={20} color="#34d399" />
+            </View>
+            <T style={{ fontSize: 13, fontWeight: "700", color: "#ffffff" }}>
+              {t.views.export.encTitle}
+            </T>
+          </View>
+          <T style={{ marginTop: 12, fontSize: 12, color: "#a3a3a3", lineHeight: 19 }}>
+            {t.views.export.encDesc}
+          </T>
+
+          <T style={{ marginTop: 16, fontSize: 11, color: "#a3a3a3", marginBottom: 4 }}>
+            {t.views.export.encPassphraseLabel}
+          </T>
+          <Input
+            secureTextEntry
+            value={encPassphrase}
+            onChangeText={setEncPassphrase}
+            placeholder="••••••••"
+            autoCapitalize="none"
+            style={{
+              borderWidth: 1,
+              borderColor: "#262626",
+              backgroundColor: "#171717",
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              fontSize: 13,
+              color: "#ffffff",
+            }}
+          />
+
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 10, marginTop: 14 }}>
+            <View style={{ flex: 1 }}>
+              <Btn
+                title={t.views.export.encCreateButton}
+                onPress={handleEncryptedCreate}
+                icon={<Lock size={16} color="#ffffff" />}
+                fullWidth
+                disabled={encBusy}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Btn
+                title={t.views.export.encRestoreButton}
+                onPress={handleEncryptedRestore}
+                icon={<Upload size={16} color="#ffffff" />}
+                fullWidth
+                disabled={encBusy}
+                style={{ opacity: encBusy ? 0.6 : 1 }}
+              />
+            </View>
+          </View>
+
+          {encStatus ? (
+            <T style={{ marginTop: 12, fontSize: 12, color: "#34d399" }}>{encStatus}</T>
+          ) : null}
         </View>
 
         {/* Export Markdown Notes */}

@@ -24,6 +24,7 @@ import { ProgressRingsSection } from "./ProgressRingsSection";
 import { DailyJournalTile } from "./DailyJournalTile";
 import { CircularProgress } from "../ui/CircularProgress";
 import { DailyAffirmation } from "../dashboard/DailyAffirmation";
+import { DailyReview } from "../dashboard/DailyReview";
 import { T } from "../ui/primitives";
 import { useThemeColors } from "../../lib/theme";
 
@@ -165,6 +166,9 @@ export const DashboardView: React.FC = () => {
           </Pressable>
         </View>
       </View>
+
+      {/* Daily Review: Progress summary of habits and tasks completed today */}
+      <DailyReview />
 
       {/* Bento Grid Layout (mobile: single column) */}
       <View className="gap-5">

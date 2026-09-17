@@ -8,6 +8,7 @@ import {
   Plus,
   Globe,
   Bot,
+  Sparkles,
 } from "lucide-react-native";
 import { useSecondBrain } from "../../context/SecondBrainContext";
 import { T } from "../ui/primitives";
@@ -18,6 +19,7 @@ export const ShortcutsFooter: React.FC = () => {
   const {
     isRTL,
     setIsShortcutsModalOpen,
+    setIsOnboardingOpen,
     setIsCommandPaletteOpen,
     setIsQuickCaptureOpen,
     setIsWebClipperOpen,
@@ -93,6 +95,11 @@ export const ShortcutsFooter: React.FC = () => {
       label: isRTL ? "کوپایلوت" : "AI",
       icon: <Bot size={12} color={c.textPrimary} />,
       onPress: () => setIsAIAssistantOpen(true),
+    },
+    {
+      label: isRTL ? "تور آشنایی" : "Tour",
+      icon: <Sparkles size={12} color="#818cf8" />,
+      onPress: () => setIsOnboardingOpen(true),
     },
     {
       label: isRTL ? "راهنما" : "Help",

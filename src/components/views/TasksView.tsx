@@ -16,6 +16,9 @@ import { TaskReminderBanner } from "./TaskReminderBanner";
 import { TasksSkeleton } from "./ViewSkeletons";
 import { SortableTaskRow } from "./SortableTaskRow";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
+import { EmptyState } from "../ui/EmptyState";
+import { TagInput } from "../ui/TagInput";
+import { Hash, Tag as TagIcon } from "lucide-react-native";
 
 export const TasksView: React.FC = () => {
   const {
@@ -31,11 +34,17 @@ export const TasksView: React.FC = () => {
     showToast,
     isRTL,
     t,
+    localSearchQuery,
+    selectedFolderId,
+    folders,
+    trackRecentItem,
+    allWorkspaceTags,
   } = useSecondBrain();
 
   const [viewMode, setViewMode] = useState<"table" | "board" | "calendar">("table");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
+  const [filterTag, setFilterTag] = useState<string>("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -48,10 +57,44 @@ export const TasksView: React.FC = () => {
   const [estimatedTime, setEstimatedTime] = useState<number>(2);
   const [projectId, setProjectId] = useState("");
   const [goalId, setGoalId] = useState("");
+  const [taskTags, setTaskTags] = useState<string[]>([]);
+
+  // Unique tags across tasks
+  const taskTagsList = React.useMemo(() => {
+    const all = tasks.flatMap((task) => task.tags || []);
+    return Array.from(new Set(all)).filter(Boolean);
+  }, [tasks]);
+
+  const taskTagCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const task of tasks) {
+      for (const tag of task.tags || []) {
+        counts[tag] = (counts[tag] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [tasks]);
 
   const filteredTasks = tasks.filter((taskItem) => {
+    // Filter by selected folder
+    if (selectedFolderId) {
+      const folder = folders.find((f) => f.id === selectedFolderId);
+      if (folder && (!folder.itemIds?.taskIds || !folder.itemIds.taskIds.includes(taskItem.id))) {
+        return false;
+      }
+    }
     if (filterStatus !== "all" && taskItem.status !== filterStatus) return false;
     if (filterPriority !== "all" && taskItem.priority !== filterPriority) return false;
+    if (filterTag !== "all" && (!taskItem.tags || !taskItem.tags.includes(filterTag))) return false;
+
+    // Filter by local search query
+    if (localSearchQuery.trim()) {
+      const query = localSearchQuery.trim().toLowerCase();
+      const matchName = taskItem.name.toLowerCase().includes(query);
+      const matchDesc = taskItem.description?.toLowerCase().includes(query);
+      const matchTag = taskItem.tags?.some((tg) => tg.toLowerCase().includes(query));
+      if (!matchName && !matchDesc && !matchTag) return false;
+    }
     return true;
   });
 
@@ -65,6 +108,7 @@ export const TasksView: React.FC = () => {
     setEstimatedTime(2);
     setProjectId("");
     setGoalId("");
+    setTaskTags([]);
     setIsCreateModalOpen(true);
   };
 
@@ -78,7 +122,16 @@ export const TasksView: React.FC = () => {
     setEstimatedTime(task.estimatedTime || 1);
     setProjectId(task.projectId || "");
     setGoalId(task.goalId || "");
+    setTaskTags(task.tags || []);
     setIsCreateModalOpen(true);
+
+    trackRecentItem({
+      itemId: task.id,
+      type: "task",
+      title: task.name,
+      view: "tasks",
+      badge: isRTL ? (task.priority === "high" ? "فوری" : "تسک") : task.priority,
+    });
   };
 
   const handleSaveTask = () => {
@@ -94,6 +147,7 @@ export const TasksView: React.FC = () => {
         estimatedTime,
         projectId: projectId || undefined,
         goalId: goalId || undefined,
+        tags: taskTags,
         isCompleted: status === "completed",
       });
     } else {
@@ -106,6 +160,7 @@ export const TasksView: React.FC = () => {
         estimatedTime,
         projectId: projectId || undefined,
         goalId: goalId || undefined,
+        tags: taskTags,
         isCompleted: status === "completed",
       });
     }
@@ -273,13 +328,108 @@ export const TasksView: React.FC = () => {
         </View>
       </View>
 
+      {/* Workspace Task Tag Quick-Filter Bar */}
+      {taskTagsList.length > 0 ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}>
+            <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+              <TagIcon size={12} color="#60a5fa" />
+              <T style={{ fontSize: 11, color: "#a3a3a3" }}>
+                {isRTL ? "برچسب‌های تسک:" : "Task tags:"}
+              </T>
+            </View>
+            <Pressable
+              onPress={() => setFilterTag("all")}
+              style={{
+                borderRadius: 999,
+                paddingHorizontal: 10,
+                paddingVertical: 2,
+                backgroundColor: filterTag === "all" ? "#262626" : "#0a0a0a",
+                borderWidth: 1,
+                borderColor: filterTag === "all" ? "#404040" : "#0a0a0a",
+              }}
+            >
+              <T style={{ fontSize: 11, fontWeight: filterTag === "all" ? "700" : "400", color: filterTag === "all" ? "#e5e5e5" : "#737373" }}>
+                #{t.common.all}
+              </T>
+            </Pressable>
+            {taskTagsList.map((tag) => {
+              const isSelected = filterTag === tag;
+              return (
+                <Pressable
+                  key={tag}
+                  onPress={() => setFilterTag(isSelected ? "all" : tag)}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 4,
+                    borderRadius: 999,
+                    paddingHorizontal: 10,
+                    paddingVertical: 2,
+                    borderWidth: 1,
+                    backgroundColor: isSelected ? "#2563eb" : "#171717",
+                    borderColor: isSelected ? "#3b82f6" : "#262626",
+                  }}
+                >
+                  <T style={{ fontSize: 11, fontWeight: isSelected ? "700" : "400", color: isSelected ? "#ffffff" : "#a3a3a3" }}>
+                    #{tag}
+                  </T>
+                  <T style={{ fontSize: 10, color: isSelected ? "#bfdbfe" : "#737373" }}>
+                    ({taskTagCounts[tag] || 0})
+                  </T>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+      ) : null}
+
+      {/* Active Tag Filter Indicator */}
+      {filterTag !== "all" ? (
+        <View
+          style={{
+            flexDirection: isRTL ? "row-reverse" : "row",
+            alignItems: "center",
+            gap: 6,
+            alignSelf: "flex-start",
+            borderRadius: 12,
+            backgroundColor: "rgba(59,130,246,0.15)",
+            borderWidth: 1,
+            borderColor: "rgba(59,130,246,0.3)",
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+          }}
+        >
+          <TagIcon size={12} color="#60a5fa" />
+          <T style={{ fontSize: 12, color: "#93c5fd" }}>#{filterTag}</T>
+          <Pressable onPress={() => setFilterTag("all")} style={{ padding: 2 }}>
+            <X size={12} color="#60a5fa" />
+          </Pressable>
+        </View>
+      ) : null}
+
       {/* VIEW 1: LIST VIEW WITH DRAG REORDERING */}
       {viewMode === "table" && (
         <View className="overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900/60">
           {filteredTasks.length === 0 ? (
-            <T style={{ paddingVertical: 56, textAlign: "center", fontSize: 12, color: "#a3a3a3" }}>
-              {t.views.tasks.noTasksFound}
-            </T>
+            <View style={{ padding: 16 }}>
+              <EmptyState
+                imageSize="sm"
+                title={t.views.tasks.noTasksFound}
+                description={
+                  localSearchQuery || filterStatus !== "all" || filterPriority !== "all" || filterTag !== "all"
+                    ? isRTL
+                      ? "هیچ وظیفه‌ای با فیلترها یا عبارت جستجوی فعلی مطابقت ندارد."
+                      : "No tasks match your active search or filter criteria."
+                    : isRTL
+                    ? "هنوز هیچ وظیفه‌ای ثبت نشده است. با ایجاد نخستین تسک روز خود را سازمان‌دهی کنید."
+                    : "No tasks found in your workspace. Start by creating a new task."
+                }
+                actionLabel={tasks.length === 0 ? (isRTL ? "+ ایجاد وظیفه جدید" : "+ Create New Task") : undefined}
+                onAction={tasks.length === 0 ? handleOpenCreate : undefined}
+                icon={<CheckSquare size={16} color="#60a5fa" />}
+              />
+            </View>
           ) : (
             <DraggableList
               data={filteredTasks}
@@ -299,6 +449,8 @@ export const TasksView: React.FC = () => {
                 handleToggleTaskReminder,
                 handleOpenEdit,
                 deleteTask,
+                filterTag,
+                onTagClick: (tag: string) => setFilterTag(filterTag === tag ? "all" : tag),
               }}
             />
           )}
@@ -307,6 +459,26 @@ export const TasksView: React.FC = () => {
 
       {/* VIEW 2: KANBAN BOARD (mobile: vertical columns with status change selects) */}
       {viewMode === "board" && (
+        filteredTasks.length === 0 ? (
+          <View style={{ paddingVertical: 24 }}>
+            <EmptyState
+              imageSize="md"
+              title={t.views.tasks.noTasksFound}
+              description={
+                localSearchQuery || filterStatus !== "all" || filterPriority !== "all"
+                  ? isRTL
+                    ? "هیچ وظیفه‌ای با فیلترهای کنونی در تخته کانبان یافت نشد."
+                    : "No tasks match your active filters on the Kanban board."
+                  : isRTL
+                  ? "تخته کانبان در حال حاضر خالی است. نخستین وظیفه خود را اضافه کنید."
+                  : "Your Kanban board is empty. Add a new task to start tracking progress."
+              }
+              actionLabel={tasks.length === 0 ? (isRTL ? "+ ایجاد وظیفه جدید" : "+ Create New Task") : undefined}
+              onAction={tasks.length === 0 ? handleOpenCreate : undefined}
+              icon={<CheckSquare size={16} color="#60a5fa" />}
+            />
+          </View>
+        ) : (
         <View className="gap-5">
           {kanbanColumns.map((col) => {
             const colTasks = filteredTasks.filter((taskItem) => taskItem.status === col.id);
@@ -383,6 +555,35 @@ export const TasksView: React.FC = () => {
                             </T>
                           ) : null}
 
+                          {taskItem.tags && taskItem.tags.length > 0 ? (
+                            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, paddingTop: 4 }}>
+                              {taskItem.tags.map((tag) => {
+                                const isSelected = filterTag === tag;
+                                return (
+                                  <Pressable
+                                    key={tag}
+                                    onPress={() => setFilterTag(isSelected ? "all" : tag)}
+                                    style={{
+                                      flexDirection: "row",
+                                      alignItems: "center",
+                                      gap: 2,
+                                      borderRadius: 6,
+                                      paddingHorizontal: 6,
+                                      paddingVertical: 2,
+                                      backgroundColor: isSelected ? "#2563eb" : "rgba(23,37,84,0.4)",
+                                      borderWidth: 1,
+                                      borderColor: isSelected ? "#3b82f6" : "rgba(30,64,175,0.4)",
+                                    }}
+                                  >
+                                    <T style={{ fontSize: 10, fontWeight: "500", color: isSelected ? "#ffffff" : "#93c5fd" }}>
+                                      #{tag}
+                                    </T>
+                                  </Pressable>
+                                );
+                              })}
+                            </View>
+                          ) : null}
+
                           <View
                             style={{
                               flexDirection: isRTL ? "row-reverse" : "row",
@@ -443,6 +644,7 @@ export const TasksView: React.FC = () => {
             );
           })}
         </View>
+        )
       )}
 
       {/* VIEW 3: CALENDAR VIEW */}
@@ -476,6 +678,34 @@ export const TasksView: React.FC = () => {
                     <T numberOfLines={1} style={{ fontSize: 12, color: "#a3a3a3" }}>
                       {taskItem.description}
                     </T>
+                  ) : null}
+                  {taskItem.tags && taskItem.tags.length > 0 ? (
+                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4, paddingTop: 4 }}>
+                      {taskItem.tags.map((tag) => {
+                        const isSelected = filterTag === tag;
+                        return (
+                          <Pressable
+                            key={tag}
+                            onPress={() => setFilterTag(isSelected ? "all" : tag)}
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              gap: 2,
+                              borderRadius: 6,
+                              paddingHorizontal: 6,
+                              paddingVertical: 2,
+                              backgroundColor: isSelected ? "#2563eb" : "rgba(23,37,84,0.4)",
+                              borderWidth: 1,
+                              borderColor: isSelected ? "#3b82f6" : "rgba(30,64,175,0.4)",
+                            }}
+                          >
+                            <T style={{ fontSize: 10, fontWeight: "500", color: isSelected ? "#ffffff" : "#93c5fd" }}>
+                              #{tag}
+                            </T>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
                   ) : null}
                   <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTopWidth: 1, borderTopColor: "#171717" }}>
                     {statusBadge(taskItem.status)}
@@ -515,6 +745,9 @@ export const TasksView: React.FC = () => {
         goals={goals}
         isRTL={isRTL}
         t={t}
+        taskTags={taskTags}
+        setTaskTags={setTaskTags}
+        allWorkspaceTags={allWorkspaceTags}
       />
     </View>
   );
@@ -556,6 +789,8 @@ const DraggableList: React.FC<DraggableListProps> = ({ data, onReorder, renderIt
             deleteTask={renderItemProps.deleteTask}
             drag={drag}
             isActive={isActive}
+            selectedTag={renderItemProps.filterTag}
+            onTagClick={renderItemProps.onTagClick}
           />
         </ScaleDecorator>
       )}
@@ -590,6 +825,9 @@ interface TaskEditModalProps {
   goals: any[];
   isRTL: boolean;
   t: any;
+  taskTags: string[];
+  setTaskTags: (v: string[]) => void;
+  allWorkspaceTags: string[];
 }
 
 const TaskEditModal: React.FC<TaskEditModalProps> = ({
@@ -617,6 +855,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
   goals,
   isRTL,
   t,
+  taskTags,
+  setTaskTags,
+  allWorkspaceTags,
 }) => {
   const labelStyle = { fontSize: 12, fontWeight: "600" as const, color: "#d4d4d4", marginBottom: 6 };
   const inputStyle = {
@@ -751,6 +992,22 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                 onChangeText={setDescription}
                 placeholder={t.views.tasks.taskDescPlaceholder}
                 style={[inputStyle, { minHeight: 60, textAlignVertical: "top" }]}
+              />
+            </View>
+
+            {/* Task Tags with auto-complete */}
+            <View>
+              <T style={labelStyle}>{t.common.tags}</T>
+              <TagInput
+                tags={taskTags}
+                onChange={setTaskTags}
+                allAvailableTags={allWorkspaceTags}
+                isRTL={isRTL}
+                placeholder={
+                  isRTL
+                    ? "افزودن برچسب تسک... (مثلاً: #پایگاه_داده، #طراحی)"
+                    : "Add task tags... (e.g. #database, #frontend)"
+                }
               />
             </View>
 

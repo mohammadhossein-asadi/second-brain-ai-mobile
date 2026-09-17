@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { AppState, I18nManager, Alert } from "react-native";
 import { useColorScheme } from "nativewind";
 import * as Updates from "expo-updates";
+import * as LocalAuthentication from "expo-local-authentication";
 import NetInfo from "@react-native-community/netinfo";
 import { Language, TranslationDictionary, translations } from "../i18n";
 import {
@@ -28,8 +29,11 @@ import {
   Priority,
   Toast,
   ToastType,
+  RecentItem,
+  WorkspaceFolder,
 } from "../types";
 import { recordViewAccess } from "../utils/viewTracking";
+import { playAutoSaveChime } from "../utils/audio";
 import { storage } from "../lib/storage";
 import { writeAndShareFile, backupFilename } from "../lib/files";
 import { aiService } from "../services/ai";
@@ -46,6 +50,8 @@ import {
   initialSelfAwareness,
   initialAutomationRules,
   initialSuggestions,
+  initialRecentItems,
+  initialFolders,
   getTodayKey,
 } from "../data/initialData";
 
@@ -80,6 +86,8 @@ interface SecondBrainContextType {
   setIsAIAssistantOpen: (open: boolean) => void;
   isShortcutsModalOpen: boolean;
   setIsShortcutsModalOpen: (open: boolean) => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
 
   // Projects
   projects: Project[];
@@ -200,13 +208,83 @@ interface SecondBrainContextType {
   autoLockMinutes: number;
   setAutoLockMinutes: (minutes: number) => void;
   lastActiveTime: number;
+  biometricEnabled: boolean;
+  setBiometricEnabled: (enabled: boolean) => void;
+  unlockVaultBiometric: () => Promise<{ success: boolean; reason?: "unavailable" | "failed" }>;
 
   // Task reordering
   reorderTasks: (newTasks: Task[]) => void;
 
+  // Local Search Filter specific to current view
+  localSearchQuery: string;
+  setLocalSearchQuery: (query: string) => void;
+
+  // Recent Visited Items (last 5)
+  recentItems: RecentItem[];
+  trackRecentItem: (item: {
+    itemId: string;
+    type: "note" | "task" | "project" | "resource" | "contact" | "goal" | "habit";
+    title: string;
+    view: ActiveView;
+    badge?: string;
+  }) => void;
+  clearRecentItems: () => void;
+
+  // Custom Workspace Folders
+  folders: WorkspaceFolder[];
+  addFolder: (folder: Omit<WorkspaceFolder, "id" | "createdAt">) => WorkspaceFolder;
+  updateFolder: (id: string, updates: Partial<WorkspaceFolder>) => void;
+  deleteFolder: (id: string) => void;
+  addItemToFolder: (folderId: string, itemType: "note" | "task" | "project", itemId: string) => void;
+  removeItemFromFolder: (folderId: string, itemType: "note" | "task" | "project", itemId: string) => void;
+  selectedFolderId: string | null;
+  setSelectedFolderId: (id: string | null) => void;
+  isManageFolderModalOpen: boolean;
+  setIsManageFolderModalOpen: (open: boolean) => void;
+  folderBeingEdited: WorkspaceFolder | null;
+  setFolderBeingEdited: (folder: WorkspaceFolder | null) => void;
+
+  // Collapsible categories state
+  collapsedCategories: Record<string, boolean>;
+  toggleCategoryCollapsed: (categoryKey: string) => void;
+
+  // Drag-and-drop navigation ordering
+  sidebarNavOrder: string[];
+  setSidebarNavOrder: (order: string[]) => void;
+  resetSidebarNavOrder: () => void;
+
+  // Focus Mode
+  isFocusMode: boolean;
+  setIsFocusMode: (val: boolean) => void;
+  toggleFocusMode: () => void;
+
+  // Daily Note
+  openOrCreateDailyNote: () => void;
+
+  // Tag Management
+  allWorkspaceTags: string[];
+  renameTagGlobally: (oldTag: string, newTag: string) => void;
+  deleteTagGlobally: (tagToDelete: string) => void;
+
   // Offline Caching & Status
   isOffline: boolean;
   lastOfflineSyncTimestamp: string;
+
+  // Auto-Save Status
+  autoSaveStatus: {
+    visible: boolean;
+    entity: "note" | "task" | "all" | null;
+    timestamp: string;
+  };
+
+  // Backup & Network
+  lastBackupTimestamp: string;
+  triggerManualBackupSync: () => Promise<void>;
+
+  // Sound Notification System
+  isSoundEnabled: boolean;
+  toggleSound: () => void;
+  playSaveChime: () => void;
 }
 
 const SecondBrainContext = createContext<SecondBrainContextType | undefined>(undefined);
@@ -281,15 +359,227 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const isRTL = language === "fa";
   const t = translations[language];
 
-  const [activeView, setActiveViewState] = useState<ActiveView>("dashboard");
+  const VALID_VIEWS: readonly ActiveView[] = [
+    "dashboard",
+    "tasks",
+    "projects",
+    "goals",
+    "habits",
+    "contacts",
+    "skills",
+    "resources",
+    "notes",
+    "income",
+    "self-awareness",
+    "graph",
+    "automation",
+    "export",
+  ] as const;
+
+  const [activeView, setActiveViewState] = useState<ActiveView>(() => {
+    const cached = loadStorage<ActiveView>("active_view", "dashboard");
+    return VALID_VIEWS.includes(cached) ? cached : "dashboard";
+  });
   const setActiveView = useCallback((view: ActiveView) => {
     setActiveViewState(view);
+    saveStorage("active_view", view);
     recordViewAccess(view);
+    if (view === "dashboard") {
+      setLocalSearchQuery("");
+    }
   }, []);
   const [theme, setThemeState] = useState<"light" | "dark">(() => {
     return loadStorage<"light" | "dark">("theme", "dark");
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
+
+  // Recent visited items (last 5 items: notes, tasks, projects, etc.)
+  const [recentItems, setRecentItems] = useState<RecentItem[]>(() => {
+    return loadStorage<RecentItem[]>("recent_items", initialRecentItems);
+  });
+
+  const trackRecentItem = useCallback(
+    (item: {
+      itemId: string;
+      type: "note" | "task" | "project" | "resource" | "contact" | "goal" | "habit";
+      title: string;
+      view: ActiveView;
+      badge?: string;
+    }) => {
+      setRecentItems((prev) => {
+        const filtered = prev.filter(
+          (r) => !(r.itemId === item.itemId && r.type === item.type)
+        );
+        const newItem: RecentItem = {
+          id: `${item.type}-${item.itemId}-${Date.now()}`,
+          ...item,
+          visitedAt: Date.now(),
+        };
+        const updated = [newItem, ...filtered].slice(0, 5);
+        saveStorage("recent_items", updated);
+        return updated;
+      });
+    },
+    []
+  );
+
+  const clearRecentItems = useCallback(() => {
+    setRecentItems([]);
+    saveStorage("recent_items", []);
+  }, []);
+
+  // Custom Folders
+  const [folders, setFolders] = useState<WorkspaceFolder[]>(() => {
+    return loadStorage<WorkspaceFolder[]>("workspace_folders", initialFolders);
+  });
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [isManageFolderModalOpen, setIsManageFolderModalOpen] = useState(false);
+  const [folderBeingEdited, setFolderBeingEdited] = useState<WorkspaceFolder | null>(null);
+
+  const addFolder = useCallback(
+    (folderData: Omit<WorkspaceFolder, "id" | "createdAt">) => {
+      const newFolder: WorkspaceFolder = {
+        ...folderData,
+        id: `folder-${Date.now()}`,
+        createdAt: new Date().toLocaleDateString(language === "fa" ? "fa-IR" : "en-US"),
+        itemIds: folderData.itemIds || { noteIds: [], taskIds: [], projectIds: [] },
+      };
+      setFolders((prev) => {
+        const updated = [newFolder, ...prev];
+        saveStorage("workspace_folders", updated);
+        return updated;
+      });
+      return newFolder;
+    },
+    [language]
+  );
+
+  const updateFolder = useCallback((id: string, updates: Partial<WorkspaceFolder>) => {
+    setFolders((prev) => {
+      const updated = prev.map((f) => (f.id === id ? { ...f, ...updates } : f));
+      saveStorage("workspace_folders", updated);
+      return updated;
+    });
+  }, []);
+
+  const deleteFolder = useCallback(
+    (id: string) => {
+      setFolders((prev) => {
+        const updated = prev.filter((f) => f.id !== id);
+        saveStorage("workspace_folders", updated);
+        return updated;
+      });
+      if (selectedFolderId === id) {
+        setSelectedFolderId(null);
+      }
+    },
+    [selectedFolderId]
+  );
+
+  const addItemToFolder = useCallback(
+    (folderId: string, itemType: "note" | "task" | "project", itemId: string) => {
+      setFolders((prev) => {
+        const updated = prev.map((f) => {
+          if (f.id !== folderId) return f;
+          const currentItemIds = f.itemIds || {};
+          if (itemType === "note") {
+            const noteIds = Array.from(new Set([...(currentItemIds.noteIds || []), itemId]));
+            return { ...f, itemIds: { ...currentItemIds, noteIds } };
+          } else if (itemType === "task") {
+            const taskIds = Array.from(new Set([...(currentItemIds.taskIds || []), itemId]));
+            return { ...f, itemIds: { ...currentItemIds, taskIds } };
+          } else if (itemType === "project") {
+            const projectIds = Array.from(new Set([...(currentItemIds.projectIds || []), itemId]));
+            return { ...f, itemIds: { ...currentItemIds, projectIds } };
+          }
+          return f;
+        });
+        saveStorage("workspace_folders", updated);
+        return updated;
+      });
+    },
+    []
+  );
+
+  const removeItemFromFolder = useCallback(
+    (folderId: string, itemType: "note" | "task" | "project", itemId: string) => {
+      setFolders((prev) => {
+        const updated = prev.map((f) => {
+          if (f.id !== folderId) return f;
+          const currentItemIds = f.itemIds || {};
+          if (itemType === "note") {
+            const noteIds = (currentItemIds.noteIds || []).filter((id) => id !== itemId);
+            return { ...f, itemIds: { ...currentItemIds, noteIds } };
+          } else if (itemType === "task") {
+            const taskIds = (currentItemIds.taskIds || []).filter((id) => id !== itemId);
+            return { ...f, itemIds: { ...currentItemIds, taskIds } };
+          } else if (itemType === "project") {
+            const projectIds = (currentItemIds.projectIds || []).filter((id) => id !== itemId);
+            return { ...f, itemIds: { ...currentItemIds, projectIds } };
+          }
+          return f;
+        });
+        saveStorage("workspace_folders", updated);
+        return updated;
+      });
+    },
+    []
+  );
+
+  // Collapsible categories state in Sidebar
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>(() => {
+    return loadStorage<Record<string, boolean>>("sidebar_collapsed_categories", {
+      work: false,
+      personal: false,
+      archived: true,
+      recent: false,
+      folders: false,
+      core: false,
+      database: false,
+      aiTools: false,
+    });
+  });
+
+  const toggleCategoryCollapsed = useCallback((categoryKey: string) => {
+    setCollapsedCategories((prev) => {
+      const updated = { ...prev, [categoryKey]: !prev[categoryKey] };
+      saveStorage("sidebar_collapsed_categories", updated);
+      return updated;
+    });
+  }, []);
+
+  // Drag-and-drop navigation ordering
+  const DEFAULT_NAV_ORDER = [
+    "dashboard",
+    "notes",
+    "tasks",
+    "projects",
+    "goals",
+    "habits",
+    "contacts",
+    "skills",
+    "resources",
+    "income",
+    "self-awareness",
+    "graph",
+    "automation",
+    "export",
+  ];
+
+  const [sidebarNavOrder, setSidebarNavOrderState] = useState<string[]>(() => {
+    return loadStorage<string[]>("sidebar_nav_order", DEFAULT_NAV_ORDER);
+  });
+
+  const setSidebarNavOrder = useCallback((order: string[]) => {
+    setSidebarNavOrderState(order);
+    saveStorage("sidebar_nav_order", order);
+  }, []);
+
+  const resetSidebarNavOrder = useCallback(() => {
+    setSidebarNavOrderState(DEFAULT_NAV_ORDER);
+    saveStorage("sidebar_nav_order", DEFAULT_NAV_ORDER);
+  }, []);
 
   // Toast notifications state with strict deduplication and timer tracking
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -368,6 +658,36 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [isWebClipperOpen, setIsWebClipperOpen] = useState(false);
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpenState] = useState<boolean>(() => {
+    const completed = storage.getItem(STORAGE_PREFIX + "onboarding_completed");
+    return completed !== "true";
+  });
+
+  const setIsOnboardingOpen = useCallback((open: boolean) => {
+    setIsOnboardingOpenState(open);
+    if (!open) {
+      storage.setItem(STORAGE_PREFIX + "onboarding_completed", "true");
+    }
+  }, []);
+  const [isFocusMode, setIsFocusMode] = useState<boolean>(() => loadStorage("isFocusMode", false));
+
+  const toggleFocusMode = () => {
+    setIsFocusMode((prev) => {
+      const next = !prev;
+      saveStorage("isFocusMode", next);
+      showToast(
+        next
+          ? isRTL
+            ? "حالت تمرکز فعال شد — سایدبار و نوارها پنهان شدند"
+            : "Focus Mode activated — distracting elements hidden"
+          : isRTL
+          ? "از حالت تمرکز خارج شدید"
+          : "Exited Focus Mode",
+        "info"
+      );
+      return next;
+    });
+  };
 
   // Entities
   const [projects, setProjects] = useState<Project[]>(() => loadStorage("projects", initialProjects));
@@ -432,15 +752,89 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [lastOfflineSyncTimestamp, setLastOfflineSyncTimestamp] = useState<string>(() => {
     return loadStorage<string>("lastSyncTimestamp", new Date().toLocaleTimeString("fa-IR"));
   });
+  const [lastBackupTimestamp, setLastBackupTimestamp] = useState<string>(() => {
+    const defaultTime = new Date().toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" });
+    return loadStorage<string>("lastBackupTimestamp", defaultTime);
+  });
+
+  // Auto-Save Status & Non-intrusive Indicator
+  const isInitialMountNotesRef = useRef(true);
+  const isInitialMountTasksRef = useRef(true);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [autoSaveStatus, setAutoSaveStatus] = useState<{
+    visible: boolean;
+    entity: "note" | "task" | "all" | null;
+    timestamp: string;
+  }>({
+    visible: false,
+    entity: null,
+    timestamp: "",
+  });
+
+  // Sound Notification System
+  const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(() => {
+    return loadStorage<boolean>("isSoundEnabled", true);
+  });
+
+  const toggleSound = useCallback(() => {
+    setIsSoundEnabled((prev) => {
+      const next = !prev;
+      saveStorage("isSoundEnabled", next);
+      if (next) {
+        playAutoSaveChime(0.08);
+      }
+      return next;
+    });
+  }, []);
+
+  const playSaveChime = useCallback(() => {
+    if (isSoundEnabled) {
+      playAutoSaveChime(0.08);
+    }
+  }, [isSoundEnabled]);
+
+  const triggerAutoSaveIndicator = useCallback(
+    (entity: "note" | "task" | "all") => {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+      const timeStr = `${hh}:${mm}:${ss}`;
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+      setAutoSaveStatus({
+        visible: true,
+        entity,
+        timestamp: timeStr,
+      });
+
+      // Play soft chime notification on successful auto-save
+      if (isSoundEnabled) {
+        playAutoSaveChime(0.08);
+      }
+
+      autoSaveTimerRef.current = setTimeout(() => {
+        setAutoSaveStatus((prev) => ({ ...prev, visible: false }));
+      }, 2800);
+    },
+    [isSoundEnabled]
+  );
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       const online = Boolean(state.isConnected && state.isInternetReachable !== false);
       if (online) {
         setIsOffline(false);
-        const ts = new Date().toLocaleTimeString(language === "fa" ? "fa-IR" : "en-US");
+        const ts = new Date().toLocaleTimeString(language === "fa" ? "fa-IR" : "en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
         setLastOfflineSyncTimestamp(ts);
+        setLastBackupTimestamp(ts);
         saveStorage("lastSyncTimestamp", ts);
+        saveStorage("lastBackupTimestamp", ts);
         showToast(
           language === "fa"
             ? "اتصال برقرار شد — داده‌های آفلاین همگام‌سازی شدند"
@@ -511,6 +905,46 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return false;
   }, [vaultPin]);
 
+  const [biometricEnabled, setBiometricEnabledState] = useState<boolean>(() => {
+    return loadStorage<boolean>("biometricEnabled", false);
+  });
+
+  const setBiometricEnabled = (enabled: boolean) => {
+    setBiometricEnabledState(enabled);
+    saveStorage("biometricEnabled", enabled);
+  };
+
+  const unlockVaultBiometric = useCallback(
+    async (): Promise<{ success: boolean; reason?: "unavailable" | "failed" }> => {
+      try {
+        const [hasHardware, enrolled] = await Promise.all([
+          LocalAuthentication.hasHardwareAsync(),
+          LocalAuthentication.isEnrolledAsync(),
+        ]);
+        if (!hasHardware || !enrolled) {
+          return { success: false, reason: "unavailable" };
+        }
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: language === "fa" ? "بازگشایی گاوصندوق" : "Unlock your vault",
+          cancelLabel: language === "fa" ? "انصراف" : "Cancel",
+          disableDeviceFallback: false,
+        });
+        if (!result.success) {
+          return { success: false, reason: "failed" };
+        }
+        setIsLocked(false);
+        saveStorage("isLocked", false);
+        const now = Date.now();
+        setLastActiveTime(now);
+        saveStorage("lastActiveTime", now);
+        return { success: true };
+      } catch {
+        return { success: false, reason: "failed" };
+      }
+    },
+    [language]
+  );
+
   // Track activity to trigger auto-lock (AppState replaces mouse/touch listeners)
   useEffect(() => {
     let lastRecorded = Date.now();
@@ -566,13 +1000,27 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Sync state to storage
   useEffect(() => saveStorage("projects", projects), [projects]);
-  useEffect(() => saveStorage("tasks", tasks), [tasks]);
+  useEffect(() => {
+    saveStorage("tasks", tasks);
+    if (isInitialMountTasksRef.current) {
+      isInitialMountTasksRef.current = false;
+      return;
+    }
+    triggerAutoSaveIndicator("task");
+  }, [tasks, triggerAutoSaveIndicator]);
   useEffect(() => saveStorage("goals", goals), [goals]);
   useEffect(() => saveStorage("habits", habits), [habits]);
   useEffect(() => saveStorage("contacts", contacts), [contacts]);
   useEffect(() => saveStorage("skills", skills), [skills]);
   useEffect(() => saveStorage("resources", resources), [resources]);
-  useEffect(() => saveStorage("notes", notes), [notes]);
+  useEffect(() => {
+    saveStorage("notes", notes);
+    if (isInitialMountNotesRef.current) {
+      isInitialMountNotesRef.current = false;
+      return;
+    }
+    triggerAutoSaveIndicator("note");
+  }, [notes, triggerAutoSaveIndicator]);
   useEffect(() => saveStorage("income", incomeSources), [incomeSources]);
   useEffect(() => saveStorage("selfAwareness", selfAwareness), [selfAwareness]);
   useEffect(() => saveStorage("rules", automationRules), [automationRules]);
@@ -819,6 +1267,134 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
       return remaining;
     });
     showToast(isRTL ? "یادداشت حذف شد" : "Note deleted", "warning");
+  };
+
+  // Daily Note implementation
+  const openOrCreateDailyNote = () => {
+    const today = new Date();
+    const isoDate = today.toISOString().split("T")[0]; // e.g. "2026-09-13"
+    const jalaliDate = today.toLocaleDateString("fa-IR");
+    const formattedDate = isRTL ? jalaliDate : isoDate;
+
+    // Check if a daily note already exists for today
+    const existing = notes.find((n) => {
+      const isDaily = n.tags?.some((t) => t === "daily-note" || t === "روزانه" || t === "daily") || n.category === "Personal";
+      return isDaily && (n.title.includes(isoDate) || n.title.includes(jalaliDate));
+    }) || notes.find((n) => n.title.includes(isoDate) || n.title.includes(jalaliDate));
+
+    if (existing) {
+      setSelectedNoteId(existing.id);
+      setActiveView("notes");
+      showToast(
+        isRTL ? `یادداشت روزانه امروز (${formattedDate}) باز شد` : `Opened today's Daily Note (${formattedDate})`,
+        "info",
+        isRTL ? "یادداشت روزانه" : "Daily Note"
+      );
+      return;
+    }
+
+    // Create a new daily note with a structured daily template
+    const title = isRTL ? `📅 یادداشت روزانه - ${jalaliDate}` : `📅 Daily Note - ${isoDate}`;
+    const defaultContent = isRTL
+      ? `# 📅 یادداشت روزانه - ${jalaliDate}\n\n## 🎯 اولویت‌های اصلی امروز\n- [ ] اولویت ۱: \n- [ ] اولویت ۲: \n- [ ] اولویت ۳: \n\n## 💡 افکار، ایده‌ها و مشاهدات\n- \n\n## 📝 جلسات و یادداشت‌های کاری\n- \n\n## ✨ مرور و دستاوردهای روز\n- `
+      : `# 📅 Daily Note - ${isoDate}\n\n## 🎯 Today's Top Priorities\n- [ ] Priority 1: \n- [ ] Priority 2: \n- [ ] Priority 3: \n\n## 💡 Thoughts & Ideas\n- \n\n## 📝 Meetings & Log\n- \n\n## ✨ Wins & Reflection\n- `;
+
+    const newNote = addNote({
+      title,
+      content: defaultContent,
+      type: "note",
+      category: "Personal",
+      tags: ["daily-note", isRTL ? "روزانه" : "journal"],
+      isPinned: true,
+      isArchived: false,
+      summary: isRTL ? `یادداشت روزانه ثبت شده برای ${jalaliDate}` : `Daily note created for ${isoDate}`,
+    });
+
+    setSelectedNoteId(newNote.id);
+    setActiveView("notes");
+  };
+
+  // Workspace-wide deduplicated and sorted tags pool from notes, tasks, and projects
+  const allWorkspaceTags = useMemo(() => {
+    const rawTags = [
+      ...notes.flatMap((n) => n.tags || []),
+      ...tasks.flatMap((t) => t.tags || []),
+      ...projects.flatMap((p) => p.tags || []),
+    ];
+    const cleaned = rawTags
+      .map((t) => (typeof t === "string" ? t.trim().replace(/^#/, "") : ""))
+      .filter((t) => Boolean(t) && t.length > 0);
+    return Array.from(new Set(cleaned)).sort((a, b) => a.localeCompare(b));
+  }, [notes, tasks, projects]);
+
+  // Tag Management System implementations
+  const renameTagGlobally = (oldTag: string, newTag: string) => {
+    const cleanOld = oldTag.trim().replace(/^#/, "");
+    const cleanNew = newTag.trim().replace(/^#/, "");
+    if (!cleanOld || !cleanNew || cleanOld === cleanNew) return;
+
+    setNotes((prev) =>
+      prev.map((note) => {
+        if (!note.tags || !note.tags.includes(cleanOld)) return note;
+        const updatedTags = Array.from(
+          new Set(note.tags.map((t) => (t === cleanOld ? cleanNew : t)))
+        );
+        return {
+          ...note,
+          tags: updatedTags,
+          updatedAt: new Date().toLocaleDateString("fa-IR"),
+        };
+      })
+    );
+
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (!task.tags || !task.tags.includes(cleanOld)) return task;
+        const updatedTags = Array.from(
+          new Set(task.tags.map((t) => (t === cleanOld ? cleanNew : t)))
+        );
+        return {
+          ...task,
+          tags: updatedTags,
+        };
+      })
+    );
+
+    showToast(
+      isRTL ? `برچسب #${cleanOld} به #${cleanNew} تغییر نام یافت` : `Tag #${cleanOld} renamed to #${cleanNew}`,
+      "success"
+    );
+  };
+
+  const deleteTagGlobally = (tagToDelete: string) => {
+    const cleanTag = tagToDelete.trim().replace(/^#/, "");
+    if (!cleanTag) return;
+
+    setNotes((prev) =>
+      prev.map((note) => {
+        if (!note.tags || !note.tags.includes(cleanTag)) return note;
+        return {
+          ...note,
+          tags: note.tags.filter((t) => t !== cleanTag),
+          updatedAt: new Date().toLocaleDateString("fa-IR"),
+        };
+      })
+    );
+
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (!task.tags || !task.tags.includes(cleanTag)) return task;
+        return {
+          ...task,
+          tags: task.tags.filter((t) => t !== cleanTag),
+        };
+      })
+    );
+
+    showToast(
+      isRTL ? `برچسب #${cleanTag} از همه یادداشت‌ها و تسک‌ها حذف شد` : `Tag #${cleanTag} removed from all notes and tasks`,
+      "info"
+    );
   };
 
   const generateTagsForNote = async (title: string, content: string) => {
@@ -1142,6 +1718,12 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
           return h;
         })
       );
+      const nowStr = new Date().toLocaleTimeString(language === "fa" ? "fa-IR" : "en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setLastBackupTimestamp(nowStr);
+      saveStorage("lastBackupTimestamp", nowStr);
       showToast(
         isRTL
           ? "همگام‌سازی مغز دوم با موفقیت انجام شد."
@@ -1154,6 +1736,21 @@ export const SecondBrainProvider: React.FC<{ children: React.ReactNode }> = ({ c
         isRTL ? "خطا در همگام‌سازی اطلاعات" : "Error synchronizing data",
         "error"
       );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const triggerManualBackupSync = async () => {
+    setIsSyncing(true);
+    try {
+      await syncData();
+      const nowStr = new Date().toLocaleTimeString(language === "fa" ? "fa-IR" : "en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setLastBackupTimestamp(nowStr);
+      saveStorage("lastBackupTimestamp", nowStr);
     } finally {
       setIsSyncing(false);
     }
@@ -1445,6 +2042,12 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
     setSelfAwareness(initialSelfAwareness);
     setAutomationRules(initialAutomationRules);
     setSuggestions(initialSuggestions);
+    setRecentItems(initialRecentItems);
+    setFolders(initialFolders);
+    setSelectedFolderId(null);
+    setLocalSearchQuery("");
+    setActiveViewState("dashboard");
+    saveStorage("active_view", "dashboard");
   };
 
   return (
@@ -1475,6 +2078,8 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
         setIsAIAssistantOpen,
         isShortcutsModalOpen,
         setIsShortcutsModalOpen,
+        isOnboardingOpen,
+        setIsOnboardingOpen,
         projects,
         addProject,
         updateProject,
@@ -1562,9 +2167,47 @@ ${notes.slice(0, 5).map((n) => `- ${n.title} [برچسب‌ها: ${n.tags.join("
         autoLockMinutes,
         setAutoLockMinutes,
         lastActiveTime,
+        biometricEnabled,
+        setBiometricEnabled,
+        unlockVaultBiometric,
         reorderTasks,
         isOffline,
         lastOfflineSyncTimestamp,
+        autoSaveStatus,
+        lastBackupTimestamp,
+        triggerManualBackupSync,
+        isSoundEnabled,
+        toggleSound,
+        playSaveChime,
+        localSearchQuery,
+        setLocalSearchQuery,
+        recentItems,
+        trackRecentItem,
+        clearRecentItems,
+        folders,
+        addFolder,
+        updateFolder,
+        deleteFolder,
+        addItemToFolder,
+        removeItemFromFolder,
+        selectedFolderId,
+        setSelectedFolderId,
+        isManageFolderModalOpen,
+        setIsManageFolderModalOpen,
+        folderBeingEdited,
+        setFolderBeingEdited,
+        collapsedCategories,
+        toggleCategoryCollapsed,
+        sidebarNavOrder,
+        setSidebarNavOrder,
+        resetSidebarNavOrder,
+        isFocusMode,
+        setIsFocusMode,
+        toggleFocusMode,
+        openOrCreateDailyNote,
+        allWorkspaceTags,
+        renameTagGlobally,
+        deleteTagGlobally,
       }}
     >
       {children}

@@ -16,6 +16,7 @@ import { useSecondBrain } from "../../context/SecondBrainContext";
 import { Priority, Project, ProjectCategory, Status } from "../../types";
 import { ProjectsSkeleton } from "./ViewSkeletons";
 import { ProjectProgressBar } from "./ProjectProgressBar";
+import { CircularProgress } from "../ui/CircularProgress";
 import { T, Input, Select, ModalShell, Btn } from "../ui/primitives";
 
 export const ProjectsView: React.FC = () => {
@@ -29,6 +30,10 @@ export const ProjectsView: React.FC = () => {
     isDataLoading,
     isRTL,
     t,
+    localSearchQuery,
+    selectedFolderId,
+    folders,
+    trackRecentItem,
   } = useSecondBrain();
 
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -63,6 +68,22 @@ export const ProjectsView: React.FC = () => {
     if (archiveFilter === "active" && p.isArchived) return false;
     if (archiveFilter === "archived" && !p.isArchived) return false;
     if (selectedCategory !== "all" && p.category !== selectedCategory) return false;
+
+    // Filter by selected folder
+    if (selectedFolderId) {
+      const folder = folders.find((f) => f.id === selectedFolderId);
+      if (folder && (!folder.itemIds?.projectIds || !folder.itemIds.projectIds.includes(p.id))) {
+        return false;
+      }
+    }
+
+    // Filter by local search query
+    if (localSearchQuery.trim()) {
+      const query = localSearchQuery.trim().toLowerCase();
+      const matchName = p.name.toLowerCase().includes(query);
+      const matchDesc = p.description?.toLowerCase().includes(query);
+      if (!matchName && !matchDesc) return false;
+    }
     return true;
   });
 
@@ -92,6 +113,14 @@ export const ProjectsView: React.FC = () => {
     setEndDate(p.endDate || "");
     setIcon(p.icon || "📁");
     setIsModalOpen(true);
+
+    trackRecentItem({
+      itemId: p.id,
+      type: "project",
+      title: p.name,
+      view: "projects",
+      badge: isRTL ? "پروژه" : "Project",
+    });
   };
 
   const handleSave = () => {
@@ -279,6 +308,23 @@ export const ProjectsView: React.FC = () => {
           </T>
         ) : (
           filteredProjects.map((project) => {
+            const projectTasks = tasks.filter((task) => task.projectId === project.id);
+            const completedCount = projectTasks.filter((task) => task.isCompleted).length;
+            const totalTasks = projectTasks.length;
+            const calculatedPct = totalTasks > 0
+              ? Math.round((completedCount / totalTasks) * 100)
+              : Math.min(100, Math.max(0, project.progress ?? 0));
+
+            const ringColor = calculatedPct === 100
+              ? "#34d399"
+              : calculatedPct >= 70
+              ? "#60a5fa"
+              : calculatedPct >= 35
+              ? "#818cf8"
+              : calculatedPct > 0
+              ? "#fbbf24"
+              : "#525252";
+
             return (
               <View
                 key={project.id}
@@ -317,7 +363,16 @@ export const ProjectsView: React.FC = () => {
                       </View>
                     </View>
 
-                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 4 }}>
+                    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                      {/* Visual Completion Progress Ring */}
+                      <View pointerEvents="none">
+                        <CircularProgress progress={calculatedPct} size={38} strokeWidth={3.5} strokeColor={ringColor} trackColor="#262626">
+                          <T style={{ fontSize: 9, fontWeight: "700", color: "#ffffff" }}>
+                            {calculatedPct}%
+                          </T>
+                        </CircularProgress>
+                      </View>
+
                       <Pressable
                         onPress={() => toggleArchiveProject(project.id)}
                         className="rounded-xl p-1.5"

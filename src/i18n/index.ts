@@ -73,11 +73,28 @@ export interface TranslationDictionary {
     self_dev: string;
     main: string;
     personal: string;
+    work: string;
+    archived: string;
   };
   nav: {
     coreSection: string;
     databaseSection: string;
     aiToolsSection: string;
+    workSection: string;
+    personalSection: string;
+    archivedSection: string;
+    recentSection: string;
+    recentEmpty: string;
+    foldersSection: string;
+    addFolder: string;
+    folderCount: string;
+    reorderHint: string;
+    resetOrder: string;
+    localSearchPlaceholder: string;
+    collapseCategory: string;
+    expandCategory: string;
+    manageFolders: string;
+    clearRecent: string;
     dashboard: string;
     notes: string;
     tasks: string;
@@ -376,6 +393,16 @@ export interface TranslationDictionary {
       restoreButton: string;
       restoreSuccess: string;
       restoreError: string;
+      encTitle: string;
+      encDesc: string;
+      encPassphraseLabel: string;
+      encCreateButton: string;
+      encRestoreButton: string;
+      encPassTooShort: string;
+      encCreateSuccess: string;
+      encRestoreSuccess: string;
+      encWrongPassphrase: string;
+      encBadFile: string;
       resetTitle: string;
       resetDesc: string;
       resetButton: string;
@@ -528,11 +555,28 @@ export const translations: Record<Language, TranslationDictionary> = {
       self_dev: "توسعه فردی",
       main: "پروژه‌های اصلی",
       personal: "شخصی",
+      work: "کاری",
+      archived: "آرشیو شده",
     },
     nav: {
       coreSection: "هسته اصلی",
       databaseSection: "پایگاه‌های دانش",
       aiToolsSection: "ابزارها و هوش مصنوعی",
+      workSection: "حوزه کاری",
+      personalSection: "حوزه فردی و شخصی",
+      archivedSection: "آرشیو و موارد تکمیل شده",
+      recentSection: "بازدیدهای اخیر",
+      recentEmpty: "هنوز موردی بازدید نشده است",
+      foldersSection: "پوشه‌ها و دسته‌ها",
+      addFolder: "پوشه جدید",
+      folderCount: "مورد",
+      reorderHint: "برای تغییر ترتیب بکشید",
+      resetOrder: "بازنشانی چیدمان منو",
+      localSearchPlaceholder: "جستجو در این صفحه...",
+      collapseCategory: "بستن دسته‌بندی",
+      expandCategory: "باز کردن دسته‌بندی",
+      manageFolders: "مدیریت پوشه‌ها",
+      clearRecent: "پاکسازی اخیر",
       dashboard: "میز کار و خلاصه",
       notes: "یادداشت‌ها و اتم‌ها",
       tasks: "وظایف و کارها",
@@ -812,7 +856,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       export: {
         title: "مرکز پشتیبان‌گیری و انتقال داده‌ها",
         subtitle: "خروجی کامل JSON و یادداشت‌های Markdown با استانداردهای آزاد",
-        descriptionText: "داده‌های شما کاملاً تحت کنترل خودتان است. در هر زمان می‌توانید کل مغز دوم را به عنوان فایل JSON یا یادداشت‌های Markdown استخراج کنید و در نرم‌افزارهایی مثل Obsidian، Logseq یا Notion وارد نمایید.",
+        descriptionText: "داده‌های شما کاملاً تحت کنترل خودتان است. در هر زمان می‌توانید کل پایگاه دانش را به عنوان فایل JSON یا یادداشت‌های Markdown استخراج کنید و در نرم‌افزارهایی مثل Obsidian، Logseq یا Notion وارد نمایید.",
         metricsTitle: "آمار و وضعیت پایگاه داده",
         storageActive: "ذخیره‌سازی محلی پایدار",
         notesMetric: "یادداشت‌ها",
@@ -831,6 +875,16 @@ export const translations: Record<Language, TranslationDictionary> = {
         restoreButton: "انتخاب فایل پشتیبان JSON",
         restoreSuccess: "داده‌ها با موفقیت بازگردانی شدند!",
         restoreError: "خطا: فایل پشتیبان نامعتبر است.",
+        encTitle: "پشتیبان‌گیری رمزنگاری‌شده دو طرفه",
+        encDesc: "فایل پشتیبان با AES-256-GCM روی همین دستگاه با عبارت عبور شما رمزنگاری می‌شود. بدون عبارت عبور — حتی ما — نمی‌توانیم آن را بخوانیم. فایل را در iCloud Drive، Google Drive یا هر مسیر دیگری ذخیره کنید.",
+        encPassphraseLabel: "عبارت عبور پشتیبان (حداقل ۸ نویسه)",
+        encCreateButton: "ساخت و اشتراک‌گذاری پشتیبان رمزنگاری‌شده",
+        encRestoreButton: "بازیابی از فایل رمزنگاری‌شده",
+        encPassTooShort: "عبارت عبور باید حداقل ۸ نویسه باشد.",
+        encCreateSuccess: "پشتیبان رمزنگاری‌شده ساخته شد.",
+        encRestoreSuccess: "بازیابی از پشتیبان رمزنگاری‌شده با موفقیت انجام شد!",
+        encWrongPassphrase: "عبارت عبور اشتباه است یا فایل آسیب دیده.",
+        encBadFile: "این فایل یک پشتیبان رمزنگاری‌شده معتبر نیست.",
         resetTitle: "بازنشانی به داده‌های اولیه",
         resetDesc: "پاکسازی کامل و بازنشانی به داده‌های نمونه اولیه سیستم جهت شروع دوباره.",
         resetButton: "بازنشانی کامل داده‌ها",
@@ -885,7 +939,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       },
       webClipper: {
         title: "استخراج هوشمند صفحات وب (Web Clipper)",
-        subtitle: "وارد کردن لینک برای خلاصه‌سازی و ذخیره آن در مغز دوم",
+        subtitle: "وارد کردن لینک برای خلاصه‌سازی و ذخیره آن در پایگاه دانش",
         urlPlaceholder: "https://...",
         clipButton: "استخراج و تحلیل",
         clipping: "در حال پردازش و استخراج صفحه...",
@@ -896,7 +950,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       aiAssistant: {
         title: "دستیار هوشمند مغز دوم",
         subtitle: "متصل به کلیه نودها، وظایف، پروژه‌ها و اهداف شما",
-        connectedState: "اتصال به مغز دوم برقرار است",
+        connectedState: "اتصال به پایگاه دانش برقرار است",
         clearHistory: "پاکسازی گفتگو",
         emptyStatePrompt: "سلام! من دستیار هوشمند شما هستم. می‌توانید درباره اولویت‌بندی کارها، برنامه‌ریزی پروژه‌ها، گزارش پیشرفت یا خلاصه‌سازی یادداشت‌ها از من بپرسید.",
         inputPlaceholder: "پیام یا سوال خود را اینجا بنویسید...",
@@ -981,11 +1035,28 @@ export const translations: Record<Language, TranslationDictionary> = {
       self_dev: "Self-Development",
       main: "Main Projects",
       personal: "Personal",
+      work: "Work",
+      archived: "Archived",
     },
     nav: {
       coreSection: "Core Hub",
-      databaseSection: "Second Brains",
+      databaseSection: "Knowledge Bases",
       aiToolsSection: "Tools & AI",
+      workSection: "Work Workspace",
+      personalSection: "Personal Growth",
+      archivedSection: "Archived & Completed",
+      recentSection: "Recent Items",
+      recentEmpty: "No recent items visited yet",
+      foldersSection: "Folders & Groups",
+      addFolder: "New Folder",
+      folderCount: "items",
+      reorderHint: "Drag to reorder navigation",
+      resetOrder: "Reset Menu Layout",
+      localSearchPlaceholder: "Search in this view...",
+      collapseCategory: "Collapse category",
+      expandCategory: "Expand category",
+      manageFolders: "Manage Folders",
+      clearRecent: "Clear Recent",
       dashboard: "Dashboard",
       notes: "Notes & Atoms",
       tasks: "Tasks & To-Dos",
@@ -1284,6 +1355,16 @@ export const translations: Record<Language, TranslationDictionary> = {
         restoreButton: "Choose Backup JSON File",
         restoreSuccess: "Data restored successfully!",
         restoreError: "Error: Invalid backup file format.",
+        encTitle: "End-to-End Encrypted Backup",
+        encDesc: "AES-256-GCM backup encrypted on this device with your passphrase. Nobody — including us — can read it without the passphrase. Save the file to iCloud Drive, Google Drive, or any location.",
+        encPassphraseLabel: "Backup passphrase (min 8 characters)",
+        encCreateButton: "Create & Share Encrypted Backup",
+        encRestoreButton: "Restore from Encrypted File",
+        encPassTooShort: "Passphrase must be at least 8 characters.",
+        encCreateSuccess: "Encrypted backup created.",
+        encRestoreSuccess: "Encrypted backup restored successfully!",
+        encWrongPassphrase: "Wrong passphrase or corrupted file.",
+        encBadFile: "Not a valid encrypted backup file.",
         resetTitle: "Reset to Defaults",
         resetDesc: "Clear current database and reload default starter templates for a clean start.",
         resetButton: "Reset All to Defaults",
@@ -1351,7 +1432,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         subtitle: "Directly linked to all your notes, tasks, projects, and goals",
         connectedState: "Knowledge base synchronized",
         clearHistory: "Clear Chat",
-        emptyStatePrompt: "Hello! I am your Second Brain AI Copilot. Ask me to prioritize tasks, summarize notes, review habit streaks, or plan project milestones.",
+        emptyStatePrompt: "Hello! I am your Second Brain Copilot. Ask me to prioritize tasks, summarize notes, review habit streaks, or plan project milestones.",
         inputPlaceholder: "Type your message or prompt here...",
         sendButton: "Send Message",
         samplePrompt1: "What are my most urgent tasks for today?",
